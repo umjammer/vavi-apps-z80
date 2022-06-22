@@ -1,0 +1,11 @@
+﻿AssemblyTitle=Z80.NET
+AssemblyDescription=A Z80 processor simulator written in C#.
+AssemblyConfiguration=
+AssemblyCompany=Konamiman
+AssemblyProduct=Z80.NET
+AssemblyCopyright=Copyright © Konamiman 2015
+AssemblyTrademark=
+AssemblyCulture=
+Guid=4d4f307d-e2c2-426a-bcec-6a0d0ff70846
+AssemblyVersion=1.0.6.0
+AssemblyFileVersion=1.0.6.0
