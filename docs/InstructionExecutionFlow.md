@@ -1,6 +1,6 @@
 ## Instruction execution flow ##
 
-The following is the chain of operations performed by [IZ80Processor](../Main/IZ80Processor.cs) when executing one instruction, either as part of the instructions execution loop or when executing one single instruction (see [how execution works](HowExecutionWorks.md)).
+The following is the chain of operations performed by [IZ80Processor](../Main/IZ80Processor.cs) when executing one instruction, either as part of the instructions' execution loop or when executing one single instruction (see [how execution works](HowExecutionWorks.md)).
 
 1. The `BeforeInstructionFetch` event is triggered. _The code that handles the event has an opportunity to request execution termination by invoking `BeforeInstructionFetchEventArgs.ExecutionStopper.Stop`_.
 2. The first opcode byte of the instruction to be executed is retrieved by reading `Memory[Registers.PC]`.

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>vavi</groupId>
-  <artifactId>vavi-emu-z80</artifactId>
+  <artifactId>vavi-apps-z80</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <build>
@@ -25,9 +25,9 @@
         <configuration>
           <argLine>
             -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
-            -Dvavi.test.dev.null=${dev.null}
           </argLine>
           <!--
+            -Dvavi.test.dev.null=${dev.null}
           <trimStackTrace>false</trimStackTrace>
           -->
           <includes>
