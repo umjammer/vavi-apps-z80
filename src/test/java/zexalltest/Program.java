@@ -6,13 +6,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import konamiman.EventArgs.BeforeInstructionFetchEventArgs;
-import konamiman.IZ80Processor;
-import konamiman.Z80Processor;
+import konamiman.z80.events.BeforeInstructionFetchEvent;
+import konamiman.z80.Z80Processor;
+import konamiman.z80.Z80ProcessorImpl;
 
-import static konamiman.DataTypesAndUtils.NumberUtils.GetHighByte;
-import static konamiman.DataTypesAndUtils.NumberUtils.GetLowByte;
-import static konamiman.Z80Processor.toByteArray;
+import static konamiman.z80.utils.NumberUtils.getHighByte;
+import static konamiman.z80.utils.NumberUtils.getLowByte;
+import static konamiman.z80.utils.NumberUtils.toByteArray;
 
 
 /**
@@ -33,25 +33,25 @@ class Program {
 
         DollarCode = '$';
 
-        var z80 = new Z80Processor();
+        var z80 = new Z80ProcessorImpl();
         z80.setClockSynchronizer(null);
         z80.setAutoStopOnRetWithStackEmpty(true);
 
         var program = Files.readAllBytes(Paths.get(fileName));
-        z80.getMemory().SetContents(0x100, program, 0, null);
+        z80.getMemory().setContents(0x100, program, 0, null);
 
         z80.getMemory().set(6, (byte) 0xFF);
         z80.getMemory().set(7, (byte) 0xFF);
 
-        z80.BeforeInstructionFetch().addListener(Program::Z80OnBeforeInstructionFetch);
+        z80.beforeInstructionFetch().addListener(Program::Z80OnBeforeInstructionFetch);
 
         SkipTests(z80, testsToSkip);
 
         long sw = System.currentTimeMillis();
 
-        z80.Reset();
+        z80.reset();
         z80.getRegisters().setPC((short) 0x100);
-        z80.Continue();
+        z80.continue_();
 
         System.err.println("\r\nElapsed time: " + (System.currentTimeMillis() - sw));
     }
@@ -60,18 +60,18 @@ class Program {
         short loadTestsAddress = 0x120;
         short originalAddress = 0x13A;
         short newTestAddress = (short) (originalAddress + testsToSkipCount * 2);
-        z80.getMemory().set(loadTestsAddress, GetLowByte(newTestAddress));
-        z80.getMemory().set(loadTestsAddress + 1, GetHighByte(newTestAddress));
+        z80.getMemory().set(loadTestsAddress, getLowByte(newTestAddress));
+        z80.getMemory().set(loadTestsAddress + 1, getHighByte(newTestAddress));
     }
 
-    private static void Z80OnBeforeInstructionFetch(BeforeInstructionFetchEventArgs args) {
+    private static void Z80OnBeforeInstructionFetch(BeforeInstructionFetchEvent args) {
 
         // Absolutely minimum implementation of CP/M for ZEXALL and ZEXDOC to work
 
-        var z80 = (IZ80Processor) args.getSource();
+        var z80 = (Z80Processor) args.getSource();
 
         if (z80.getRegisters().getPC() == 0) {
-            args.getExecutionStopper().Stop(false);
+            args.getExecutionStopper().stop(false);
             return;
         } else if (z80.getRegisters().getPC() != 5)
             return;
@@ -82,7 +82,7 @@ class Program {
             var messageAddress = z80.getRegisters().getDE();
             var bytesToPrint = new ArrayList<Byte>();
             byte byteToPrint;
-            while ((byteToPrint = z80.getMemory().get(messageAddress)) != DollarCode) {
+            while ((byteToPrint = z80.getMemory().get(messageAddress & 0xffff)) != DollarCode) {
                 bytesToPrint.add(byteToPrint);
                 messageAddress++;
             }
@@ -95,7 +95,7 @@ class Program {
             System.err.print(charToPrint);
         }
 
-        z80.ExecuteRet();
+        z80.executeRet();
     }
 }
 
