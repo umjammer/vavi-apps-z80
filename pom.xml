@@ -3,7 +3,41 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-apps-z80</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.6-SNAPSHOT</version>
+
+  <profiles>
+    <profile>
+      <!-- mvn -P zexall antrun:run -Dinfile='file' -->
+      <id>zexall</id>
+      <activation>
+        <property>
+          <name>zexall</name>
+          <value/>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M5</version>
+            <configuration>
+              <argLine>
+<!--
+                -agentpath:/Applications/VisualVM.app/Contents/Resources/visualvm/visualvm/lib/deployed/jdk16/mac/libprofilerinterface.jnilib=/Applications/VisualVM.app/Contents/Resources/visualvm/visualvm/lib,5140
+-->
+                -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
+                -Dvavi.test=zexall
+              </argLine>
+              <trimStackTrace>false</trimStackTrace>
+              <includes>
+                <include>zexalltest/**/*</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <build>
     <plugins>
@@ -13,10 +47,6 @@
         <configuration>
           <source>17</source>
           <target>17</target>
-          <encoding>utf-8</encoding>
-          <testExcludes>
-            <testExclude>test/RealChip.java</testExclude>
-          </testExcludes>
         </configuration>
       </plugin>
       <plugin>
@@ -27,14 +57,11 @@
             -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
           </argLine>
           <!--
-            -Dvavi.test.dev.null=${dev.null}
           <trimStackTrace>false</trimStackTrace>
           -->
           <includes>
-            <include>**</include>
-            <include>**/*tests*</include>
+            <include>konamiman/**/*</include>
           </includes>
-
         </configuration>
       </plugin>
     </plugins>

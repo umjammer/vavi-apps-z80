@@ -27,15 +27,15 @@ class EX_SP_HL_IX_IY_tests extends InstructionsExecutionTestsBase {
     public void EX_SP_HL_IX_IY_exchanges_reg_and_pushed_value(String reg, byte opcode, Byte prefix) {
         var regValue = fixture.create(Short.TYPE);
         var pushedValue = fixture.create(Short.TYPE);
-        var SP = fixture.create(Short.TYPE);
+        var sp = createAddressFixture((short) 0, (short) 1);
 
         setReg(reg, regValue);
-        registers.setSP(SP);
-        writeShortToMemory(SP, pushedValue);
+        registers.setSP(sp);
+        writeShortToMemory(sp, pushedValue);
 
         execute(opcode, prefix);
 
-        assertEquals(regValue, readShortFromMemory(SP));
+        assertEquals(regValue, readShortFromMemory(sp));
         assertEquals(pushedValue, this.<Short>getReg(reg));
     }
 

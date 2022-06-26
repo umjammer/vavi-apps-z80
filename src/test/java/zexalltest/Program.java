@@ -9,7 +9,11 @@ import java.util.ArrayList;
 import konamiman.z80.events.BeforeInstructionFetchEvent;
 import konamiman.z80.Z80Processor;
 import konamiman.z80.Z80ProcessorImpl;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
+import static konamiman.z80.utils.NumberUtils.add;
 import static konamiman.z80.utils.NumberUtils.getHighByte;
 import static konamiman.z80.utils.NumberUtils.getLowByte;
 import static konamiman.z80.utils.NumberUtils.toByteArray;
@@ -24,28 +28,42 @@ import static konamiman.z80.utils.NumberUtils.toByteArray;
  */
 class Program {
 
-    private static byte DollarCode;
+    private static final byte DollarCode = '$';
 
     public static void main(String[] args) throws IOException {
-
-        var fileName = args.length == 0 ? "zexall.com" : args[0];
+        var fileName = args.length == 0 ? "src/test/resources/zexall.com" : args[0];
         var testsToSkip = args.length >= 2 ? Integer.parseInt(args[1]) : 0;
 
-        DollarCode = '$';
+        var program = Files.readAllBytes(Paths.get(fileName));
+    }
 
+    @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "zexall")
+    void testZExeAll() throws Exception {
+        var program = Files.readAllBytes(Paths.get("src/test/resources/zexall.com"));
+        exec(program, 0);
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "zexdoc")
+    void testZExeDoc() throws Exception {
+        var program = Files.readAllBytes(Paths.get("src/test/resources/zexdoc.com"));
+        exec(program, 0);
+    }
+
+    public static void exec(byte[] program, int testsToSkip) {
         var z80 = new Z80ProcessorImpl();
         z80.setClockSynchronizer(null);
         z80.setAutoStopOnRetWithStackEmpty(true);
 
-        var program = Files.readAllBytes(Paths.get(fileName));
         z80.getMemory().setContents(0x100, program, 0, null);
 
         z80.getMemory().set(6, (byte) 0xFF);
         z80.getMemory().set(7, (byte) 0xFF);
 
-        z80.beforeInstructionFetch().addListener(Program::Z80OnBeforeInstructionFetch);
+        z80.beforeInstructionFetch().addListener(Program::z80OnBeforeInstructionFetch);
 
-        SkipTests(z80, testsToSkip);
+        skipTests(z80, testsToSkip);
 
         long sw = System.currentTimeMillis();
 
@@ -53,18 +71,18 @@ class Program {
         z80.getRegisters().setPC((short) 0x100);
         z80.continue_();
 
-        System.err.println("\r\nElapsed time: " + (System.currentTimeMillis() - sw));
+        System.err.println("\nElapsed time: " + (System.currentTimeMillis() - sw));
     }
 
-    private static void SkipTests(Z80Processor z80, int testsToSkipCount) {
+    private static void skipTests(Z80Processor z80, int testsToSkipCount) {
         short loadTestsAddress = 0x120;
         short originalAddress = 0x13A;
-        short newTestAddress = (short) (originalAddress + testsToSkipCount * 2);
+        short newTestAddress = add(originalAddress, testsToSkipCount * 2);
         z80.getMemory().set(loadTestsAddress, getLowByte(newTestAddress));
         z80.getMemory().set(loadTestsAddress + 1, getHighByte(newTestAddress));
     }
 
-    private static void Z80OnBeforeInstructionFetch(BeforeInstructionFetchEvent args) {
+    private static void z80OnBeforeInstructionFetch(BeforeInstructionFetchEvent args) {
 
         // Absolutely minimum implementation of CP/M for ZEXALL and ZEXDOC to work
 
@@ -91,7 +109,7 @@ class Program {
             System.err.print(StringToPrint);
         } else if (function == 2) {
             var byteToPrint = z80.getRegisters().getE();
-            var charToPrint = new String(new byte[] {byteToPrint}, StandardCharsets.US_ASCII).charAt(0);
+            var charToPrint = (char) (byteToPrint & 0xff);
             System.err.print(charToPrint);
         }
 

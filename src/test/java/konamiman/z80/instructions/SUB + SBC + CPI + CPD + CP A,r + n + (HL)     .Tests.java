@@ -380,7 +380,9 @@ class SUB_SBC_CPI_CPD_CP_r_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource({"CPIR_Source", "CPDR_Source"})
     public void CPIR_CPDR_decrease_PC_if_Z_is_1_but_BC_is_not_0(String src, byte opcode, int cf, Byte prefix) {
-        // TODO fixture
+        // TODO got error
+        // when 88, 50, 85 at (HL)
+        // when 6, 125, 35 at (HL)
         var dataAddress = fixture.create(Short.TYPE);
         var runAddress = fixture.create(Short.TYPE);
         var data = fixture.create(Byte.TYPE);
