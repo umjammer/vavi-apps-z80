@@ -19,11 +19,11 @@ vavi-apps-z80 is a fork of [Z80dotNet](https://github.com/Konamiman/Z80dotNet)
     var z80 = new Z80ProcessorImpl();
     z80.setAutoStopOnRetWithStackEmpty(true);
 
-    var program=new byte[] {
-      0x3E, 0x07, // LD A,7
-      0xC6, 0x04, // ADD A,4
-      0x3C,       // INC A
-      0xC9        // RET
+    var program = new byte[] {
+      0x3E, 0x07,        // LD A,7
+      (byte) 0xC6, 0x04, // ADD A,4
+      0x3C,              // INC A
+      (byte) 0xC9        // RET
     };
     z80.getMemory().setContents(0,program);
 
