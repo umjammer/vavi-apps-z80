@@ -42,7 +42,7 @@ class DEC_aHL_tests extends InstructionsExecutionTestsBase {
 
     private short setup(String reg, byte value, byte offset/* = 0*/) {
         // TODO got error when 1 at (IX|IY)
-        var address = fixture.create().inRange(Short.TYPE, (short) 10, Short.MAX_VALUE);
+        var address = createAddressFixture();
         var actualAddress = add(address, offset);
         processorAgent.writeToMemory(actualAddress, value);
         setReg(reg, address);

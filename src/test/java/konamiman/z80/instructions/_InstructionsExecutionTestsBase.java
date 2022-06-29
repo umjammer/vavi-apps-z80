@@ -14,6 +14,7 @@ import konamiman.z80.interfaces.Z80Registers;
 import konamiman.z80.utils.Bit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.provider.Arguments;
+import vavi.util.Debug;
 
 import static konamiman.z80.StringExtensions.toMap;
 import static konamiman.z80.utils.NumberUtils.add;
@@ -232,13 +233,14 @@ abstract class InstructionsExecutionTestsBase {
 
     protected void setupRegOrMem(String reg, byte value, byte offset/* = 0*/) {
         if (reg.equals("(HL)")) {
-            var address = fixture.create().inRange(Short.TYPE, (short) 10, (short) 1000);
+            var address = createAddressFixture();
             processorAgent.writeToMemory(address, value);
             registers.setHL(address);
         } else if (reg.startsWith(("(I"))) {
             var regName = reg.substring(1, 1 + 2);
-            var address = fixture.create().inRange(Short.TYPE, (short) 1000, (short) 10000);
+            var address = createAddressFixture((short) 1, (short) 2, (short) 3);
             var realAddress = add(address, offset);
+//Debug.printf("%04x, %d, %04x", address, offset, realAddress);
             processorAgent.writeToMemory(realAddress, value);
             setReg(regName, address);
         } else {

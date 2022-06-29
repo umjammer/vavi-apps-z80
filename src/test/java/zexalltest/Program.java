@@ -32,9 +32,10 @@ class Program {
 
     public static void main(String[] args) throws IOException {
         var fileName = args.length == 0 ? "src/test/resources/zexall.com" : args[0];
-        var testsToSkip = args.length >= 2 ? Integer.parseInt(args[1]) : 0;
+        var testsToSkip = args.length >= 1 ? Integer.parseInt(args[1]) : 0;
 
         var program = Files.readAllBytes(Paths.get(fileName));
+        exec(program, testsToSkip);
     }
 
     @Test

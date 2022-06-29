@@ -50,6 +50,7 @@ class SRA_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("SRA_Source")
     public void SRA_sets_CF_from_bit_0(String reg, String destReg, byte opcode, Byte prefix, int bit) {
+        // TODO got error when (IX+n), , 46, -35, 0
         setupRegOrMem(reg, (byte) (fixture.create(Byte.TYPE) | 0x01), offset);
         registers.setCF(Bit.OFF);
         executeBit(opcode, prefix, offset);

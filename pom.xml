@@ -5,9 +5,13 @@
   <artifactId>vavi-apps-z80</artifactId>
   <version>1.0.6-SNAPSHOT</version>
 
+  <properties>
+    <target>zexall</target> <!-- or zexdoc -->
+  </properties>
+
   <profiles>
     <profile>
-      <!-- mvn -P zexall antrun:run -Dinfile='file' -->
+      <!-- mvn -P zexall [-Dtarget=zexdoc] test -->
       <id>zexall</id>
       <activation>
         <property>
@@ -26,7 +30,7 @@
                 -agentpath:/Applications/VisualVM.app/Contents/Resources/visualvm/visualvm/lib/deployed/jdk16/mac/libprofilerinterface.jnilib=/Applications/VisualVM.app/Contents/Resources/visualvm/visualvm/lib,5140
 -->
                 -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
-                -Dvavi.test=zexall
+                -Dvavi.test=${target}
               </argLine>
               <trimStackTrace>false</trimStackTrace>
               <includes>
