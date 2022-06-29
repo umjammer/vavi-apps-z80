@@ -76,12 +76,12 @@ class ADC_HL_rr_tests extends InstructionsExecutionTestsBase {
         assertEquals(1, registers.getSF().intValue());
     }
 
-    private void setup(String src, short oldValue, short valueToSubstract) {
+    private void setup(String src, short oldValue, short valueToSubtract) {
         registers.setHL(oldValue);
         registers.setCF(Bit.OFF);
 
         if (!src.equals("HL")) {
-            setReg(src, valueToSubstract);
+            setReg(src, valueToSubtract);
         }
     }
 
@@ -146,28 +146,28 @@ class ADC_HL_rr_tests extends InstructionsExecutionTestsBase {
     public void ADC_HL_rr_sets_PF_appropriately(String src, byte opcode) {
         // http://stackoverflow.com/a/8037485/4574
 
-        TestPF(src, opcode, 127, 0, 0);
-        TestPF(src, opcode, 127, 1, 1);
-        TestPF(src, opcode, 127, 127, 1);
-        TestPF(src, opcode, 127, 128, 0);
-        TestPF(src, opcode, 127, 129, 0);
-        TestPF(src, opcode, 127, 255, 0);
-        TestPF(src, opcode, 128, 0, 0);
-        TestPF(src, opcode, 128, 1, 0);
-        TestPF(src, opcode, 128, 127, 0);
-        TestPF(src, opcode, 128, 128, 1);
-        TestPF(src, opcode, 128, 129, 1);
-        TestPF(src, opcode, 128, 255, 1);
-        TestPF(src, opcode, 129, 0, 0);
-        TestPF(src, opcode, 129, 1, 0);
-        TestPF(src, opcode, 129, 127, 0);
-        TestPF(src, opcode, 129, 128, 1);
-        TestPF(src, opcode, 129, 129, 1);
-        TestPF(src, opcode, 129, 255, 0);
+        testPF(src, opcode, 127, 0, 0);
+        testPF(src, opcode, 127, 1, 1);
+        testPF(src, opcode, 127, 127, 1);
+        testPF(src, opcode, 127, 128, 0);
+        testPF(src, opcode, 127, 129, 0);
+        testPF(src, opcode, 127, 255, 0);
+        testPF(src, opcode, 128, 0, 0);
+        testPF(src, opcode, 128, 1, 0);
+        testPF(src, opcode, 128, 127, 0);
+        testPF(src, opcode, 128, 128, 1);
+        testPF(src, opcode, 128, 129, 1);
+        testPF(src, opcode, 128, 255, 1);
+        testPF(src, opcode, 129, 0, 0);
+        testPF(src, opcode, 129, 1, 0);
+        testPF(src, opcode, 129, 127, 0);
+        testPF(src, opcode, 129, 128, 1);
+        testPF(src, opcode, 129, 129, 1);
+        testPF(src, opcode, 129, 255, 0);
     }
 
-    void TestPF(String src, byte opcode, int oldValue, int substractedValue, int expectedPF) {
-        setup(src, createShort((byte) 0, (byte) oldValue), createShort((byte) 0, (byte) substractedValue));
+    void testPF(String src, byte opcode, int oldValue, int subtractedValue, int expectedPF) {
+        setup(src, createShort((byte) 0, (byte) oldValue), createShort((byte) 0, (byte) subtractedValue));
 
         execute(opcode, prefix);
         assertEquals(expectedPF, registers.getPF().intValue());

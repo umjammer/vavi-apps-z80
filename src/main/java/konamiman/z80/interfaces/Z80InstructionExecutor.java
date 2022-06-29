@@ -47,5 +47,5 @@ public interface Z80InstructionExecutor {
     /**
      * Event triggered when the instruction opcode has been fully fetched.
      */
-    /* event */ EventHandler<InstructionFetchFinishedEvent> instructionFetchFinished();
+    EventHandler<InstructionFetchFinishedEvent> instructionFetchFinished();
 }

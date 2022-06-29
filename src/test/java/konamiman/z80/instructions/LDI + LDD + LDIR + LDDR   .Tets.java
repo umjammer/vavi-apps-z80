@@ -152,7 +152,7 @@ class LDI_tests extends InstructionsExecutionTestsBase {
             var oldBC = registers.getBC();
             executeAt(address, opcode, prefix);
             assertEquals(dec(oldBC), registers.getBC());
-            assertEquals(registers.getBC() == 0 ? NumberUtils.add(address, 2) : address, registers.getPC());
+            assertEquals(registers.getBC() == 0 ? add(address, 2) : address, registers.getPC());
         }
     }
 

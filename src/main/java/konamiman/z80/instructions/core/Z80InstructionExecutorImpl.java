@@ -71,14 +71,14 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     }
 
     private int execute_CB_Instruction() {
-        Inc_R();
-        Inc_R();
+        incR();
+        incR();
         return CB_InstructionExecutors[processorAgent.fetchNextOpcode() & 0xff].get();
     }
 
     private int execute_ED_Instruction() {
-        Inc_R();
-        Inc_R();
+        incR();
+        incR();
         var secondOpcodeByte = processorAgent.fetchNextOpcode();
         if (isUnsupportedInstruction(secondOpcodeByte))
             return executeUnsopported_ED_Instruction(secondOpcodeByte);
@@ -124,9 +124,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return instructionFetchFinished;
     }
 
-// #region Auxiliary methods
+//#region Auxiliary methods
 
-    private void fetchFinished(boolean isRet/*= false*/, boolean isHalt/*= false*/, boolean isLdSp/*= false*/, boolean isEiOrDi/*= false*/)    {
+    private void fetchFinished(boolean isRet/*= false*/, boolean isHalt/*= false*/, boolean isLdSp/*= false*/, boolean isEiOrDi/*= false*/) {
         instructionFetchFinished.fireEvent (new InstructionFetchFinishedEvent(this)
         {{
             setRetInstruction(isRet);
@@ -163,22 +163,24 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         registers.setF((byte) ((registers.getF() & ~flags_3_5) | (value & flags_3_5)));
     }
 
-// #endregion
+//#endregion
+
+//#region Execute_xD_Instruction
 
     private int execute_DD_Instruction() {
-        Inc_R();
+        incR();
         var secondOpcodeByte = processorAgent.peekNextOpcode();
 
         if ((secondOpcodeByte & 0xff) == 0xCB) {
-            Inc_R();
+            incR();
             processorAgent.fetchNextOpcode();
             var offset = processorAgent.fetchNextOpcode();
             return DDCB_InstructionExecutors[processorAgent.fetchNextOpcode() & 0xff].apply(offset);
         }
 
         if (DD_InstructionExecutors.containsKey(secondOpcodeByte)) {
-            Inc_R();
-            processorAgent.fetchNextOpcode();
+        incR();
+        processorAgent.fetchNextOpcode();
             return DD_InstructionExecutors.get(secondOpcodeByte).get();
         }
 
@@ -186,25 +188,27 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     }
 
     private int execute_FD_Instruction() {
-        Inc_R();
+        incR();
         var secondOpcodeByte = processorAgent.peekNextOpcode();
 
         if ((secondOpcodeByte & 0xff) == 0xCB) {
-            Inc_R();
+            incR();
             processorAgent.fetchNextOpcode();
             var offset = processorAgent.fetchNextOpcode();
             return FDCB_InstructionExecutors[processorAgent.fetchNextOpcode() & 0xff].apply(offset);
         }
 
         if (FD_InstructionExecutors.containsKey(secondOpcodeByte)) {
-            Inc_R();
-            processorAgent.fetchNextOpcode();
+        incR();
+        processorAgent.fetchNextOpcode();
             return FD_InstructionExecutors.get(secondOpcodeByte).get();
-        }
+    }
 
         return NOP();
     }
+//#endregion
 
+//#region InstructionsTable.CB
 
     private Supplier<Byte>[] CB_InstructionExecutors;
 
@@ -469,6 +473,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         };
     }
 
+//#endregion
 
     private Map<Byte, Supplier<Byte>> DD_InstructionExecutors;
 
@@ -560,7 +565,13 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
             put((byte) 0xE9, Z80InstructionExecutorImpl.this::JP_aIX);
             put((byte) 0xF9, Z80InstructionExecutorImpl.this::LD_SP_IX);
         }};
+//#region InstructionsTable.DD
+
     }
+
+//#endregion
+
+//#region InstructionsTable.DDCB
 
     private Function<Byte, Byte>[] DDCB_InstructionExecutors;
 
@@ -825,6 +836,10 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         ).toArray(new Function[0]);
     }
 
+//#endregion
+
+//#region InstructionsTable.ED
+
     private Supplier<Byte>[] ED_InstructionExecutors;
     private Supplier<Byte>[] ED_Block_InstructionExecutors;
 
@@ -1009,7 +1024,15 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
             put((byte) 0xE9, Z80InstructionExecutorImpl.this::JP_aIY);
             put((byte) 0xF9, Z80InstructionExecutorImpl.this::LD_SP_IY);
         }};
+//#endregion
+
+//#region InstructionsTable.FD
+
     }
+
+//#endregion
+
+//#region InstructionsTable.FDCB
 
     private Function<Byte, Byte>[] FDCB_InstructionExecutors;
 
@@ -1274,6 +1297,10 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         ).toArray(new Function[0]);
     }
 
+//#endregion
+
+//#region InstructionsTable.SingleByte
+
     private Supplier<Byte>[] SingleByte_InstructionExecutors;
 
     private void initialize_SingleByte_InstructionsTable() {
@@ -1537,6 +1564,10 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         };
     }
 
+//#endregion
+
+//#region BIT b,r +
+
     private static Bit[] parity;
 
     private static void generateParityTable() {
@@ -1553,10 +1584,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         }
     }
 
+//#endregion
 
-
-
-
+//#region ADC HL,rr +
 
     /**
      * The ADC HL,BC instruction
@@ -1566,7 +1596,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getHL();
         var valueToAdd = registers.getBC();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd) + registers.getCF().intValue();
+        var newValueInt = addAsInt(oldValue, valueToAdd) + registers.getCF().intValue();
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setHL(newValue);
 
@@ -1590,7 +1620,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getHL();
         var valueToAdd = registers.getBC();
-        var newValueInt = NumberUtils.subAsInt(oldValue, valueToAdd) - registers.getCF().intValue();
+        var newValueInt = subAsInt(oldValue, valueToAdd) - registers.getCF().intValue();
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setHL(newValue);
 
@@ -1614,7 +1644,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getHL();
         var valueToAdd = registers.getDE();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd) + registers.getCF().intValue();
+        var newValueInt = addAsInt(oldValue, valueToAdd) + registers.getCF().intValue();
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setHL(newValue);
 
@@ -1638,7 +1668,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getHL();
         var valueToAdd = registers.getDE();
-        var newValueInt = NumberUtils.subAsInt(oldValue, valueToAdd) - registers.getCF().intValue();
+        var newValueInt = subAsInt(oldValue, valueToAdd) - registers.getCF().intValue();
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setHL(newValue);
 
@@ -1662,7 +1692,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getHL();
         var valueToAdd = registers.getHL();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd) + registers.getCF().intValue();
+        var newValueInt = addAsInt(oldValue, valueToAdd) + registers.getCF().intValue();
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setHL(newValue);
 
@@ -1686,7 +1716,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getHL();
         var valueToAdd = registers.getHL();
-        var newValueInt = NumberUtils.subAsInt(oldValue, valueToAdd) - registers.getCF().intValue();
+        var newValueInt = subAsInt(oldValue, valueToAdd) - registers.getCF().intValue();
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setHL(newValue);
 
@@ -1710,7 +1740,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getHL();
         var valueToAdd = registers.getSP();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd) + registers.getCF().intValue();
+        var newValueInt = addAsInt(oldValue, valueToAdd) + registers.getCF().intValue();
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setHL(newValue);
 
@@ -1734,7 +1764,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getHL();
         var valueToAdd = registers.getSP();
-        var newValueInt = NumberUtils.subAsInt(oldValue, valueToAdd) - registers.getCF().intValue();
+        var newValueInt = subAsInt(oldValue, valueToAdd) - registers.getCF().intValue();
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setHL(newValue);
 
@@ -1750,6 +1780,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 15;
     }
 
+//#endregion
+
+//#region ADC ADD A,r +
 
     /**
      * The ADC A,A instruction.
@@ -3596,6 +3629,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 19;
     }
 
+//#endregion
+
+//#region ADC HL,rr +
 
     /**
      * The ADD HL,BC instruction
@@ -3605,7 +3641,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getHL();
         var valueToAdd = registers.getBC();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd);
+        var newValueInt = addAsInt(oldValue, valueToAdd);
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setHL(newValue);
 
@@ -3625,7 +3661,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getHL();
         var valueToAdd = registers.getDE();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd);
+        var newValueInt = addAsInt(oldValue, valueToAdd);
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setHL(newValue);
 
@@ -3645,7 +3681,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getHL();
         var valueToAdd = registers.getHL();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd);
+        var newValueInt = addAsInt(oldValue, valueToAdd);
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setHL(newValue);
 
@@ -3665,7 +3701,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getHL();
         var valueToAdd = registers.getSP();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd);
+        var newValueInt = addAsInt(oldValue, valueToAdd);
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setHL(newValue);
 
@@ -3685,7 +3721,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getIX();
         var valueToAdd = registers.getBC();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd);
+        var newValueInt = addAsInt(oldValue, valueToAdd);
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setIX(newValue);
 
@@ -3705,7 +3741,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getIX();
         var valueToAdd = registers.getDE();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd);
+        var newValueInt = addAsInt(oldValue, valueToAdd);
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setIX(newValue);
 
@@ -3725,7 +3761,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getIX();
         var valueToAdd = registers.getIX();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd);
+        var newValueInt = addAsInt(oldValue, valueToAdd);
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setIX(newValue);
 
@@ -3745,7 +3781,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getIX();
         var valueToAdd = registers.getSP();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd);
+        var newValueInt = addAsInt(oldValue, valueToAdd);
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setIX(newValue);
 
@@ -3765,7 +3801,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getIY();
         var valueToAdd = registers.getBC();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd);
+        var newValueInt = addAsInt(oldValue, valueToAdd);
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setIY(newValue);
 
@@ -3785,7 +3821,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getIY();
         var valueToAdd = registers.getDE();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd);
+        var newValueInt = addAsInt(oldValue, valueToAdd);
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setIY(newValue);
 
@@ -3805,7 +3841,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getIY();
         var valueToAdd = registers.getIY();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd);
+        var newValueInt = addAsInt(oldValue, valueToAdd);
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setIY(newValue);
 
@@ -3825,7 +3861,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var oldValue = registers.getIY();
         var valueToAdd = registers.getSP();
-        var newValueInt = NumberUtils.addAsInt(oldValue, valueToAdd);
+        var newValueInt = addAsInt(oldValue, valueToAdd);
         var newValue = (short) (newValueInt & 0xFFFF);
         registers.setIY(newValue);
 
@@ -3837,6 +3873,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 15;
     }
 
+//#endregion
+
+//#region AND r +
 
     /**
      * The AND A instruction.
@@ -4843,6 +4882,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 19;
     }
 
+//#endregion
+
+//#region BIT b,r +
 
     /**
      * The BIT 0,A instruction
@@ -6228,6 +6270,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 20;
     }
 
+//#endregion
+
+//#region CCF
 
     /**
      * The CCF instruction.
@@ -6244,6 +6289,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 4;
     }
 
+//#endregion
+
+//#region CPL
 
     /**
      * The CPL instruction.
@@ -6260,6 +6308,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 4;
     }
 
+//#endregion
+
+//#region DAA
 
     /**
      * The DAA instruction.
@@ -6292,6 +6343,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 4;
     }
 
+//#endregion
+
+//#region DI
 
     /**
      * The DI instruction.
@@ -6305,6 +6359,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 4;
     }
 
+//#endregion
+
+//#region DJNZ
 
     /**
      * The DJNZ d instruction.
@@ -6323,6 +6380,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 13;
     }
 
+//#endregion
+
+//#region EI
 
     /**
      * The EI instruction.
@@ -6336,6 +6396,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 4;
     }
 
+//#endregion
+
+//#region EX (SP),HL +
 
     /**
      * The EX (SP),HL instruction.
@@ -6382,6 +6445,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 23;
     }
 
+//#endregion
+
+//#region EX AF,AF'
 
     /**
      * The EX AF,AF' instruction
@@ -6396,6 +6462,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 4;
     }
 
+//#endregion
+
+//#region EX DE,HL
 
     /**
      * The EX DE,HL instruction
@@ -6410,6 +6479,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 4;
     }
 
+//#endregion
+
+//#region EXX
 
     /**
      * The EXX instruction.
@@ -6432,6 +6504,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 4;
     }
 
+//#endregion
+
+//#region HALT
 
     /**
      * The HALT instruction.
@@ -6442,6 +6517,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 4;
     }
 
+//#endregion
+
+//#region IM n
 
     /**
      * The IM 0 instruction.
@@ -6476,6 +6554,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 8;
     }
 
+//#endregion
+
+//#region IN A,(n)
 
     /**
      * The IN A,(n) instruction.
@@ -6489,6 +6570,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 11;
     }
 
+//#endregion
+
+//#region IN r,(C)
 
     /**
      * The IN A,(C) instruction.
@@ -6641,6 +6725,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 12;
     }
 
+//#endregion
+
+//#region INC r +
 
     /**
      * The INC A instruction.
@@ -7212,6 +7299,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 23;
     }
 
+//#endregion
+
+//#region INC rr
 
     /**
      * The INC BC instruction.
@@ -7321,6 +7411,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 10;
     }
 
+//#endregion
+
+//#region INI +
 
     /**
      * The INI instruction.
@@ -7530,6 +7623,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 16;
     }
 
+//#endregion
+
+//#region JP (HL) +
 
     /**
      * The JP (HL) instruction.
@@ -7564,6 +7660,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 8;
     }
 
+//#endregion
+
+//#region JR cc 1
 
     /**
      * The JR C,d instruction.
@@ -7621,6 +7720,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 12;
     }
 
+//#endregion
+
+//#region JR
 
     /**
      * The JR d instruction.
@@ -7634,6 +7736,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 12;
     }
 
+//#endregion
+
+//#region LD (aa),A
 
     /**
      * The LD (nn),A instruction.
@@ -7647,6 +7752,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 13;
     }
 
+//#endregion
+
+//#region LD (aa),rr
 
     /**
      * The LD (aa),HL instruction.
@@ -7720,6 +7828,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 20;
     }
 
+//#endregion
+
+//#region LD (HL),n +
 
     /**
      * The LD (HL),n instruction.
@@ -7762,6 +7873,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 19;
     }
 
+//#endregion
+
+//#region LD A,(aa)
 
     /**
      * The LD A,(nn) instruction.
@@ -7775,6 +7889,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 13;
     }
 
+//#endregion
+
+//#region LD A,I +
 
     /**
      * The LD A,I instruction.
@@ -7814,6 +7931,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 9;
     }
 
+//#endregion
+
+//#region LD I,A +
 
     /**
      * The LD I,A instruction.
@@ -7837,6 +7957,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 9;
     }
 
+//#endregion
+
+//#region LD r,(rr) +
 
     /**
      * The LD A,(BC) instruction.
@@ -8464,6 +8587,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 19;
     }
 
+//#endregion
+
+//#region LD r,n
 
     /**
      * The LD A,n instruction.
@@ -8575,6 +8701,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 11;
     }
 
+//#endregion
+
+//#region LD rr,(aa)
 
     /**
      * The LD HL,(aa) instruction.
@@ -8648,6 +8777,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 20;
     }
 
+//#endregion
+
+//#region LD rr,nn
 
     /**
      * The LD BC,nn instruction.
@@ -8709,6 +8841,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 14;
     }
 
+//#endregion
+
+//#region LD r,r
 
     /**
      * The LD A,A instruction.
@@ -9766,6 +9901,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 8;
     }
 
+//#endregion
+
+//#region LD SP,HL +
 
     /**
      * The LD SP,HL instruction.
@@ -9800,6 +9938,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 10;
     }
 
+//#endregion
+
+//#region LDI +
 
     /**
      * The LDI instruction.
@@ -9925,6 +10066,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 16;
     }
 
+//#endregion
+
+//#region NEG
 
     /**
      * The NEG instruction.
@@ -9947,6 +10091,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 8;
     }
 
+//#endregion
+
+//#region NOP
 
     /**
      * The NOP instruction.
@@ -9956,6 +10103,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 4;
     }
 
+//#endregion
+
+//#region NOP2
 
     /**
      * The NOP2 instruction (equivalent to two NOPs, used for unsupported instructions).
@@ -9965,6 +10115,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 8;
     }
 
+//#endregion
+
+//#region OUT (C),r
 
     /**
      * The OUT (C),A instruction.
@@ -10054,6 +10207,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 12;
     }
 
+//#endregion
+
+//#region OUT (n),A
 
     /**
      * The OUT (n),A instruction.
@@ -10067,6 +10223,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 11;
     }
 
+//#endregion
+
+//#region PUSH rr +
 
     /**
      * The PUSH AF instruction.
@@ -10266,6 +10425,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 14;
     }
 
+//#endregion
+
+//#region RET +
 
     /**
      * The RET instruction.
@@ -10797,6 +10959,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 17;
     }
 
+//#endregion
+
+//#region RETN
 
     /**
      * The RETN instruction.
@@ -10817,6 +10982,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 14;
     }
 
+//#endregion
+
+//#region RLCA +
 
     /**
      * The RLC A instruction
@@ -15166,6 +15334,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 23;
     }
 
+//#endregion
+
+//#region RRD +
 
     /**
      * The RRD instruction.
@@ -15219,8 +15390,11 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 18;
     }
 
+//#endregion
 
-    /**RL_
+//#region RST
+
+    /**
      * The RST 00h instruction.
      */
     private byte RST_00() {
@@ -15356,6 +15530,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 11;
     }
 
+//#endregion
+
+//#region SCF
 
     private static final int HF_NF_reset = 0xED;
     private static final int CF_set = 1;
@@ -15372,6 +15549,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 4;
     }
 
+//#endregion
+
+//#region SET b,r +
 
     /**
      * The SET 0,A instruction
@@ -20861,5 +21041,5 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return 23;
     }
 
-
+//#endregion
 }

@@ -28,9 +28,6 @@ class LD_r_n_tests extends InstructionsExecutionTestsBase {
         );
     }
 
-    public static Object[] LD_r_n_Source = {
-    };
-
     @ParameterizedTest
     @MethodSource("LD_r_n_Source")
     public void LD_r_n_loads_register_with_value(String reg, byte opcode, Byte prefix) {

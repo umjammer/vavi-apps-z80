@@ -41,7 +41,7 @@ class OUT_C_r extends InstructionsExecutionTestsBase {
             setReg(reg, value);
         setPortValue(portNumber, oldValue);
 
-        Execute(opcode, portNumber, value);
+        executeOut(opcode, portNumber, value);
 
         assertEquals(reg.equals("0") ? 0 : value, getPortValue(portNumber));
     }
@@ -57,11 +57,11 @@ class OUT_C_r extends InstructionsExecutionTestsBase {
     public void OUT_C_r_returns_proper_T_states(String reg, byte opcode) {
         var portNumber = fixture.create(Byte.TYPE);
         var value = fixture.create(Byte.TYPE);
-        var states = Execute(opcode, portNumber, value);
+        var states = executeOut(opcode, portNumber, value);
         assertEquals(12, states);
     }
 
-    private int Execute(byte opcode, byte portNumber, byte value) {
+    private int executeOut(byte opcode, byte portNumber, byte value) {
         registers.setC(portNumber);
         setPortValue(portNumber, value);
         return execute(opcode, (byte) 0xED);

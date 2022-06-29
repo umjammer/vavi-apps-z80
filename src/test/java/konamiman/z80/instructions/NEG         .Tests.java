@@ -13,7 +13,7 @@ class NEG_tests extends InstructionsExecutionTestsBase {
     private static final byte prefix = (byte) 0xED;
 
     @Test
-    public void NEG_substracts_A_from_zero() {
+    public void NEG_subtracts_A_from_zero() {
         var oldValue = fixture.create(Byte.TYPE);
 
         registers.setA(oldValue);

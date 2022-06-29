@@ -74,7 +74,7 @@ public interface MainZ80Registers {
     Bit getCF(); void setCF(Bit value);
 
     /**
-     * The addition/substraction (N) flag.
+     * The addition/subtraction (N) flag.
      */
     Bit getNF(); void setNF(Bit value);
 

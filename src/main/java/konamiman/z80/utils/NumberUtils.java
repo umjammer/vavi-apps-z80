@@ -136,7 +136,7 @@ public class NumberUtils {
     }
 
     /**
-     * Substract a value to a number and overlaps it from its max value if it passes below its minimum value.
+     * Subtract a value to a number and overlaps it from its max value if it passes below its minimum value.
      *
      * @param value Number to decrease (unsigned)
      * @param amount signed integer
@@ -178,10 +178,10 @@ public class NumberUtils {
     }
 
     /**
-     * Substract a value to the number and overlaps it from its max value if it passes below its minimum value.
+     * Subtract a value to the number and overlaps it from its max value if it passes below its minimum value.
      *
      * @param value Number to decrease
-     * @param amount Amount to substract to the number
+     * @param amount Amount to subtract to the number
      * @return Increased number, or zero
      */
     public static byte sub(byte value, int amount) {

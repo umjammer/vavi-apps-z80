@@ -43,7 +43,7 @@ class IN_r_C extends InstructionsExecutionTestsBase {
             setReg(reg, value);
         registers.setA(oldValue);
 
-        execute_IN(opcode, portNumber, value);
+        executeCase(opcode, portNumber, value);
 
         assertEquals(value, this.<Byte>getReg(reg));
     }
@@ -53,16 +53,16 @@ class IN_r_C extends InstructionsExecutionTestsBase {
     public void IN_r_C_sets_SF_appropriately(String reg, byte opcode) {
         var portNumber = fixture.create(Byte.TYPE);
 
-        execute_IN(opcode, portNumber, (byte) 0xFE);
+        executeCase(opcode, portNumber, (byte) 0xFE);
         assertEquals(1, registers.getSF().intValue());
 
-        execute_IN(opcode, portNumber, (byte) 0xFF);
+        executeCase(opcode, portNumber, (byte) 0xFF);
         assertEquals(1, registers.getSF().intValue());
 
-        execute_IN(opcode, portNumber, (byte) 0);
+        executeCase(opcode, portNumber, (byte) 0);
         assertEquals(0, registers.getSF().intValue());
 
-        execute_IN(opcode, portNumber, (byte) 1);
+        executeCase(opcode, portNumber, (byte) 1);
         assertEquals(0, registers.getSF().intValue());
     }
 
@@ -71,13 +71,13 @@ class IN_r_C extends InstructionsExecutionTestsBase {
     public void IN_r_C_sets_ZF_appropriately(String reg, byte opcode) {
         var portNumber = fixture.create(Byte.TYPE);
 
-        execute_IN(opcode, portNumber, (byte) 0xFF);
+        executeCase(opcode, portNumber, (byte) 0xFF);
         assertEquals(0, registers.getZF().intValue());
 
-        execute_IN(opcode, portNumber, (byte) 0);
+        executeCase(opcode, portNumber, (byte) 0);
         assertEquals(1, registers.getZF().intValue());
 
-        execute_IN(opcode, portNumber, (byte) 1);
+        executeCase(opcode, portNumber, (byte) 1);
         assertEquals(0, registers.getZF().intValue());
     }
 
@@ -95,11 +95,11 @@ class IN_r_C extends InstructionsExecutionTestsBase {
 
         for (var value : randomValues) {
             registers.setCF(Bit.OFF);
-            execute_IN(opcode, portNumber, value);
+            executeCase(opcode, portNumber, value);
             assertEquals(0, registers.getCF().intValue());
 
             registers.setCF(Bit.ON);
-            execute_IN(opcode, portNumber, value);
+            executeCase(opcode, portNumber, value);
             assertEquals(1, registers.getCF().intValue());
         }
     }
@@ -111,7 +111,7 @@ class IN_r_C extends InstructionsExecutionTestsBase {
         var portNumber = fixture.create(Byte.TYPE);
 
         for (var value : randomValues) {
-            execute_IN(opcode, portNumber, value);
+            executeCase(opcode, portNumber, value);
             assertEquals(parity[value & 0xff], registers.getPF().intValue());
         }
     }
@@ -121,12 +121,12 @@ class IN_r_C extends InstructionsExecutionTestsBase {
     public void IN_r_C_sets_bits_3_and_5_from_result(String reg, byte opcode) {
         var portNumber = fixture.create(Byte.TYPE);
         var value = withBit(withBit(((byte) 0), 3, 1), 5, 0);
-        execute_IN(opcode, portNumber, value);
+        executeCase(opcode, portNumber, value);
         assertEquals(1, registers.getFlag3().intValue());
         assertEquals(0, registers.getFlag5().intValue());
 
         value = withBit(withBit(((byte) 0), 3, 0), 5, 1);
-        execute_IN(opcode, portNumber, value);
+        executeCase(opcode, portNumber, value);
         assertEquals(0, registers.getFlag3().intValue());
         assertEquals(1, registers.getFlag5().intValue());
     }
@@ -136,11 +136,11 @@ class IN_r_C extends InstructionsExecutionTestsBase {
     public void IN_r_C_returns_proper_T_states(String reg, byte opcode) {
         var portNumber = fixture.create(Byte.TYPE);
         var value = fixture.create(Byte.TYPE);
-        var states = execute_IN(opcode, portNumber, value);
+        var states = executeCase(opcode, portNumber, value);
         assertEquals(12, states);
     }
 
-    private int execute_IN(byte opcode, byte portNumber, byte value) {
+    private int executeCase(byte opcode, byte portNumber, byte value) {
         registers.setC(portNumber);
         setPortValue(portNumber, value);
         return execute(opcode, (byte) 0xED);

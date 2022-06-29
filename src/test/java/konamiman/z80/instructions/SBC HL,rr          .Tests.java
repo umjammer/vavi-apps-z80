@@ -34,7 +34,7 @@ class SBC_HL_rr_tests extends InstructionsExecutionTestsBase {
 
     @ParameterizedTest
     @MethodSource({"SBC_HL_rr_Source", "SBC_HL_HL_Source"})
-    public void SBC_HL_rr_substracts_both_registers_with_and_without_carry(String src, byte opcode) {
+    public void SBC_HL_rr_subtracts_both_registers_with_and_without_carry(String src, byte opcode) {
         for (var cf = 0; cf <= 1; cf++) {
             var value1 = fixture.create(Short.TYPE);
             var value2 = src.equals("HL") ? value1 : fixture.create(Short.TYPE);
@@ -72,12 +72,12 @@ class SBC_HL_rr_tests extends InstructionsExecutionTestsBase {
         assertEquals(1, registers.getSF().intValue());
     }
 
-    private void setup(String src, short oldValue, short valueToSubstract) {
+    private void setup(String src, short oldValue, short valueToSubtract) {
         registers.setHL(oldValue);
         registers.setCF(Bit.OFF);
 
         if (!src.equals("HL")) {
-            setReg(src, valueToSubstract);
+            setReg(src, valueToSubtract);
         }
     }
 
@@ -162,8 +162,8 @@ class SBC_HL_rr_tests extends InstructionsExecutionTestsBase {
         TestPF(src, opcode, 129, 255, 0);
     }
 
-    void TestPF(String src, byte opcode, int oldValue, int substractedValue, int expectedPF) {
-        setup(src, createShort((byte) 0, (byte) oldValue), createShort((byte) 0, (byte) substractedValue));
+    void TestPF(String src, byte opcode, int oldValue, int subtractedValue, int expectedPF) {
+        setup(src, createShort((byte) 0, (byte) oldValue), createShort((byte) 0, (byte) subtractedValue));
 
         execute(opcode, prefix);
         assertEquals(expectedPF, registers.getPF().intValue());

@@ -36,7 +36,7 @@ class INC_aHL_IX_IY_plus_n_tests extends InstructionsExecutionTestsBase {
         else
             execute(opcode, prefix, offset);
 
-        AssertMemoryContents(address, inc(oldValue));
+        assertMemoryContents(address, inc(oldValue));
     }
 
     private short setup(String reg, byte value, byte offset /*= 0*/) {
@@ -50,7 +50,7 @@ class INC_aHL_IX_IY_plus_n_tests extends InstructionsExecutionTestsBase {
         return actualAddress;
     }
 
-    private void AssertMemoryContents(short address, byte expected) {
+    private void assertMemoryContents(short address, byte expected) {
         assertEquals(expected, processorAgent.readFromMemory(address));
     }
 

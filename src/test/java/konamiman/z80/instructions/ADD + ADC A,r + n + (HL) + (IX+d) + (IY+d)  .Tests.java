@@ -52,13 +52,13 @@ class ADDC_A_r_tests extends InstructionsExecutionTestsBase {
         var oldValue = fixture.create(Byte.TYPE);
         var valueToAdd = src.equals("A") ? oldValue : fixture.create(Byte.TYPE);
 
-        Setup(src, oldValue, valueToAdd, cf);
+        setup(src, oldValue, valueToAdd, cf);
         execute(opcode, prefix);
 
         assertEquals(add(oldValue, valueToAdd + cf), registers.getA());
     }
 
-    private void Setup(String src, byte oldValue, byte valueToAdd, int cf/* = 0*/) {
+    private void setup(String src, byte oldValue, byte valueToAdd, int cf/* = 0*/) {
         registers.setA(oldValue);
         registers.setCF(Bit.of(cf));
 
@@ -71,7 +71,7 @@ class ADDC_A_r_tests extends InstructionsExecutionTestsBase {
         } else if (src.startsWith("(I")) {
             var address = fixture.create(Short.TYPE);
             var offset = fixture.create(Byte.TYPE);
-            var realAddress = NumberUtils.add(address, offset);
+            var realAddress = add(address, offset);
             processorAgent.writeToMemory(realAddress, valueToAdd);
             setMemoryContentsAt((short) 2, offset);
             setReg(src.substring(1, 1 + 2), address);
@@ -83,7 +83,7 @@ class ADDC_A_r_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("ADDC_A_r_Source")
     public void ADDC_A_r_sets_SF_appropriately(String src, byte opcode, int cf, Byte prefix) {
-        Setup(src, (byte) 0xFD, (byte) 1, 0);
+        setup(src, (byte) 0xFD, (byte) 1, 0);
 
         execute(opcode, prefix);
         assertEquals(1, registers.getSF().intValue());
@@ -101,7 +101,7 @@ class ADDC_A_r_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("ADDC_A_r_Source")
     public void ADDC_A_r_sets_ZF_appropriately(String src, byte opcode, int cf, Byte prefix) {
-        Setup(src, (byte) 0xFD, (byte) 1, 0);
+        setup(src, (byte) 0xFD, (byte) 1, 0);
 
         execute(opcode, prefix);
         assertEquals(0, registers.getZF().intValue());
@@ -120,7 +120,7 @@ class ADDC_A_r_tests extends InstructionsExecutionTestsBase {
     @MethodSource("ADDC_A_r_Source")
     public void ADDC_A_r_sets_HF_appropriately(String src, byte opcode, int cf, Byte prefix) {
         for (byte b : new byte[] {0x0E, 0x7E, (byte) 0xFE}) {
-            Setup(src, b, (byte) 1, 0);
+            setup(src, b, (byte) 1, 0);
 
             execute(opcode, prefix);
             assertEquals(0, registers.getHF().intValue());
@@ -136,7 +136,7 @@ class ADDC_A_r_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("ADDC_A_r_Source")
     public void ADDC_A_r_sets_PF_appropriately(String src, byte opcode, int cf, Byte prefix) {
-        Setup(src, (byte) 0x7E, (byte) 1, 0);
+        setup(src, (byte) 0x7E, (byte) 1, 0);
 
         execute(opcode, prefix);
         assertEquals(0, registers.getPF().intValue());
@@ -157,7 +157,7 @@ class ADDC_A_r_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("ADDC_A_r_Source")
     public void ADDC_A_r_sets_CF_appropriately(String src, byte opcode, int cf, Byte prefix) {
-        Setup(src, (byte) 0xFE, (byte) 1, 0);
+        setup(src, (byte) 0xFE, (byte) 1, 0);
 
         execute(opcode, prefix);
         assertEquals(0, registers.getCF().intValue());
@@ -172,12 +172,12 @@ class ADDC_A_r_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("ADDC_A_r_Source")
     public void ADDC_A_r_sets_bits_3_and_5_from_result(String src, byte opcode, int cf, Byte prefix) {
-        Setup(src, withBit(withBit((byte) 0, 3, 1), 5, 0), (byte) 0, 0);
+        setup(src, withBit(withBit((byte) 0, 3, 1), 5, 0), (byte) 0, 0);
         execute(opcode, prefix);
         assertEquals(1, registers.getFlag3().intValue());
         assertEquals(0, registers.getFlag5().intValue());
 
-        Setup(src, withBit(withBit((byte) 0, 3, 0), 5, 1), (byte) 0, 0);
+        setup(src, withBit(withBit((byte) 0, 3, 0), 5, 1), (byte) 0, 0);
         execute(opcode, prefix);
         assertEquals(0, registers.getFlag3().intValue());
         assertEquals(1, registers.getFlag5().intValue());

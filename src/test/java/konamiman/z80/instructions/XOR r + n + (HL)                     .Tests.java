@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import static konamiman.z80.utils.NumberUtils.add;
 import static konamiman.z80.utils.NumberUtils.withBit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -74,10 +75,10 @@ class XOR_r_tests extends InstructionsExecutionTestsBase {
         } else if (src.startsWith("(I")) {
             var address = fixture.create(Short.TYPE);
             var offset = fixture.create(Byte.TYPE);
-            var realAddress = NumberUtils.add(address, offset);
+            var realAddress = add(address, offset);
             processorAgent.writeToMemory(realAddress, valueToXor);
             setMemoryContentsAt((short) 2, offset);
-            setReg(src.substring(1, 1 + 2), (short) address);
+            setReg(src.substring(1, 1 + 2), address);
         } else if (!src.equals("A")) {
             setReg(src, valueToXor);
         }

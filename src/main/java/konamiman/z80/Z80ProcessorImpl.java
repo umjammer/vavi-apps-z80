@@ -268,7 +268,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
     }
 
     void fireAfterInstructionExecutionEvent(int tStates) {
-        afterInstructionExecution().fireEvent(new AfterInstructionExecutionEvent(
+        afterInstructionExecution.fireEvent(new AfterInstructionExecutionEvent(
                 this, toByteArray(executionContext.getOpcodeBytes()),
                 /*stopper:*/ this,
                 /*localUserState:*/ executionContext.getLocalUserStateFromPreviousEvent(),
@@ -298,7 +298,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         if (beforeInstructionFetch != null) {
             executionContext.setExecutingBeforeInstructionEvent(true);
             try {
-                beforeInstructionFetch().fireEvent(eventArgs);
+                beforeInstructionFetch.fireEvent(eventArgs);
             } finally {
                 executionContext.setExecutingBeforeInstructionEvent(false);
             }
@@ -313,7 +313,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
                 executionContext.getLocalUserStateFromPreviousEvent());
 
         if (beforeInstructionExecution != null)
-            beforeInstructionExecution().fireEvent(eventArgs);
+            beforeInstructionExecution.fireEvent(eventArgs);
 
         return eventArgs;
     }
@@ -609,13 +609,13 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 
 //#region Events
 
-    public /* event */ EventHandler<MemoryAccessEvent> memoryAccess = new EventHandler<>();
+    public EventHandler<MemoryAccessEvent> memoryAccess = new EventHandler<>();
 
-    public /* event */ EventHandler<BeforeInstructionFetchEvent> beforeInstructionFetch = new EventHandler<>();
+    public EventHandler<BeforeInstructionFetchEvent> beforeInstructionFetch = new EventHandler<>();
 
-    public /* event */ EventHandler<BeforeInstructionExecutionEvent> beforeInstructionExecution = new EventHandler<>();
+    public EventHandler<BeforeInstructionExecutionEvent> beforeInstructionExecution = new EventHandler<>();
 
-    public /* event */ EventHandler<AfterInstructionExecutionEvent> afterInstructionExecution = new EventHandler<>();
+    public EventHandler<AfterInstructionExecutionEvent> afterInstructionExecution = new EventHandler<>();
 
 //#endregion
 
@@ -735,7 +735,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
             Object localUserState/*= null*/,
             boolean cancelMemoryAccess/*= false*/) {
         var eventArgs = new MemoryAccessEvent(this, eventType, address, value, localUserState, cancelMemoryAccess);
-        memoryAccess().fireEvent(eventArgs);
+        memoryAccess.fireEvent(eventArgs);
         return eventArgs;
     }
 

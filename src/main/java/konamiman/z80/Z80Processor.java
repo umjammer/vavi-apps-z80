@@ -415,22 +415,22 @@ public interface Z80Processor {
     /**
      * Memory access event. Is triggered before and after each memory and port read and write.
      */
-    /* event */ EventHandler<MemoryAccessEvent> memoryAccess();
+    EventHandler<MemoryAccessEvent> memoryAccess();
 
     /**
      * Pre-instruction fetch event. It is triggered before the next instruction is fetched.
      */
-    /* event */ EventHandler<BeforeInstructionFetchEvent> beforeInstructionFetch();
+    EventHandler<BeforeInstructionFetchEvent> beforeInstructionFetch();
 
     /**
      * Pre-instruction execution event. It is triggered before an instruction is executed.
      */
-    /* event */ EventHandler<BeforeInstructionExecutionEvent> beforeInstructionExecution();
+    EventHandler<BeforeInstructionExecutionEvent> beforeInstructionExecution();
 
     /**
      * Post-instruction execution event. It is triggered after an instruction is executed.
      */
-    /* event */ EventHandler<AfterInstructionExecutionEvent> afterInstructionExecution();
+    EventHandler<AfterInstructionExecutionEvent> afterInstructionExecution();
 
 //#endregion
 

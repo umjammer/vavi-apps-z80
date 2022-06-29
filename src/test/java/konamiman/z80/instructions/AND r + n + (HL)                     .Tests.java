@@ -86,17 +86,17 @@ class AND_r_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("AND_r_Source")
     public void AND_r_sets_SF_appropriately(String src, byte opcode, Byte prefix) {
-        ExecuteCase(src, opcode, 0xFF, 0xFF, prefix);
+        executeCase(src, opcode, 0xFF, 0xFF, prefix);
         assertEquals(1, registers.getSF().intValue());
 
-        ExecuteCase(src, opcode, 0xFF, 0x80, prefix);
+        executeCase(src, opcode, 0xFF, 0x80, prefix);
         assertEquals(1, registers.getSF().intValue());
 
-        ExecuteCase(src, opcode, 0xFF, 0, prefix);
+        executeCase(src, opcode, 0xFF, 0, prefix);
         assertEquals(0, registers.getSF().intValue());
     }
 
-    private void ExecuteCase(String src, byte opcode, int oldValue, int valueToAnd, Byte prefix) {
+    private void executeCase(String src, byte opcode, int oldValue, int valueToAnd, Byte prefix) {
         setup(src, (byte) oldValue, (byte) valueToAnd);
         execute(opcode, prefix);
     }
@@ -104,13 +104,13 @@ class AND_r_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("AND_r_Source")
     public void AND_r_sets_ZF_appropriately(String src, byte opcode, Byte prefix) {
-        ExecuteCase(src, opcode, 0xFF, 0xFF, prefix);
+        executeCase(src, opcode, 0xFF, 0xFF, prefix);
         assertEquals(0, registers.getZF().intValue());
 
-        ExecuteCase(src, opcode, 0xFF, 0x80, prefix);
+        executeCase(src, opcode, 0xFF, 0x80, prefix);
         assertEquals(0, registers.getZF().intValue());
 
-        ExecuteCase(src, opcode, 0xFF, 0, prefix);
+        executeCase(src, opcode, 0xFF, 0, prefix);
         assertEquals(1, registers.getZF().intValue());
     }
 
@@ -123,16 +123,16 @@ class AND_r_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("AND_r_Source")
     public void AND_r_sets_PF_appropriately(String src, byte opcode, Byte prefix) {
-        ExecuteCase(src, opcode, 0xFF, 0x7E, prefix);
+        executeCase(src, opcode, 0xFF, 0x7E, prefix);
         assertEquals(1, registers.getPF().intValue());
 
-        ExecuteCase(src, opcode, 0xFF, 0x7F, prefix);
+        executeCase(src, opcode, 0xFF, 0x7F, prefix);
         assertEquals(0, registers.getPF().intValue());
 
-        ExecuteCase(src, opcode, 0xFF, 0x80, prefix);
+        executeCase(src, opcode, 0xFF, 0x80, prefix);
         assertEquals(0, registers.getPF().intValue());
 
-        ExecuteCase(src, opcode, 0xFF, 0x81, prefix);
+        executeCase(src, opcode, 0xFF, 0x81, prefix);
         assertEquals(1, registers.getPF().intValue());
     }
 

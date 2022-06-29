@@ -112,14 +112,14 @@ class SUB_SBC_CPI_CPD_CP_r_tests extends InstructionsExecutionTestsBase {
 
     @ParameterizedTest
     @MethodSource({"SUB_SBC_A_r_Source", "SUB_SBC_A_A_Source"})
-    public void SUB_SBC_A_r_substracts_both_registers_with_or_without_carry(String src, byte opcode, int cf, Byte prefix) {
+    public void SUB_SBC_A_r_subtracts_both_registers_with_or_without_carry(String src, byte opcode, int cf, Byte prefix) {
         var oldValue = fixture.create(Byte.TYPE);
-        var valueToSubstract = src.equals("A") ? oldValue : fixture.create(Byte.TYPE);
+        var valueToSubtract = src.equals("A") ? oldValue : fixture.create(Byte.TYPE);
 
-        setup(src, oldValue, valueToSubstract, cf);
+        setup(src, oldValue, valueToSubtract, cf);
         execute(opcode, prefix);
 
-        assertEquals(NumberUtils.sub(oldValue, (valueToSubstract & 0xff) + cf), registers.getA());
+        assertEquals(NumberUtils.sub(oldValue, (valueToSubtract & 0xff) + cf), registers.getA());
     }
 
     @ParameterizedTest
@@ -134,27 +134,27 @@ class SUB_SBC_CPI_CPD_CP_r_tests extends InstructionsExecutionTestsBase {
         assertEquals(oldValue, registers.getA());
     }
 
-    private void setup(String src, byte oldValue, byte valueToSubstract, int cf/* = 0*/) {
+    private void setup(String src, byte oldValue, byte valueToSubtract, int cf/* = 0*/) {
         registers.setA(oldValue);
         registers.setCF(Bit.of(cf));
 
         if (src.equals("n")) {
-            setMemoryContentsAt((short) 1, valueToSubstract);
+            setMemoryContentsAt((short) 1, valueToSubtract);
         } else if (src.equals("(HL)") || src.startsWith("CP")) {
             // TODO got error when 1 at "set_HF_appropriately" (CPDR)
             var address = createAddressFixture();
-            processorAgent.writeToMemory(address, valueToSubstract);
+            processorAgent.writeToMemory(address, valueToSubtract);
             registers.setHL(address);
         } else if (src.startsWith("(I")) {
             // TODO got error when 1 at "*" (CPI)
             var address = createAddressFixture();
             var offset = fixture.create(Byte.TYPE);
             var realAddress = add(address, offset);
-            processorAgent.writeToMemory(realAddress, valueToSubstract);
+            processorAgent.writeToMemory(realAddress, valueToSubtract);
             setMemoryContentsAt((short) 2, offset);
             setReg(src.substring(1, 1 + 2), address);
         } else if (!src.equals("A")) {
-            setReg(src, valueToSubstract);
+            setReg(src, valueToSubtract);
         }
     }
 
@@ -241,8 +241,8 @@ class SUB_SBC_CPI_CPD_CP_r_tests extends InstructionsExecutionTestsBase {
         testPF(src, opcode, 129, 255, 0, prefix);
     }
 
-    void testPF(String src, byte opcode, int oldValue, int substractedValue, int expectedPF, Byte prefix) {
-        setup(src, (byte) oldValue, (byte) substractedValue, 0);
+    void testPF(String src, byte opcode, int oldValue, int subtractedValue, int expectedPF, Byte prefix) {
+        setup(src, (byte) oldValue, (byte) subtractedValue, 0);
 
         execute(opcode, prefix);
         assertEquals(expectedPF, registers.getPF().intValue());

@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import static konamiman.z80.utils.NumberUtils.add;
 import static konamiman.z80.utils.NumberUtils.dec;
 import static konamiman.z80.utils.NumberUtils.withBit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,7 +43,7 @@ class DEC_aHL_tests extends InstructionsExecutionTestsBase {
     private short setup(String reg, byte value, byte offset/* = 0*/) {
         // TODO got error when 1 at (IX|IY)
         var address = fixture.create().inRange(Short.TYPE, (short) 10, Short.MAX_VALUE);
-        var actualAddress = NumberUtils.add(address, offset);
+        var actualAddress = add(address, offset);
         processorAgent.writeToMemory(actualAddress, value);
         setReg(reg, address);
 //Debug.printf("reg: %s, value: %d, offset: %d, address: %d", reg, value, offset, address);
