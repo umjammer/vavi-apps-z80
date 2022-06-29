@@ -41,7 +41,7 @@ public class Z80RegistersImpl extends MainZ80RegistersImpl implements konamiman.
 
     private short PC; public short getPC() { return PC; } public void setPC(short value) { PC = value; }
 
-    public short incPC() { return PC++; }
+    public short incPC() { return PC++; } public void decPC() { PC--; }
 
     private short SP; public short getSP() { return SP; } public void setSP(short value) { SP = value; }
 

@@ -26,7 +26,7 @@ public interface Z80Registers extends MainZ80Registers {
     /**
      * The program counter
      */
-    short getPC(); void setPC(short value); short incPC();
+    short getPC(); void setPC(short value); short incPC(); void decPC();
 
     /**
      * The stack pointer

@@ -1,10 +1,9 @@
 package konamiman.z80.instructions.core;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 import konamiman.z80.events.InstructionFetchFinishedEvent;
 import konamiman.z80.interfaces.Z80InstructionExecutor;
@@ -13,6 +12,7 @@ import konamiman.z80.interfaces.Z80Registers;
 import konamiman.z80.utils.Bit;
 import konamiman.z80.utils.NumberUtils;
 import dotnet4j.util.compat.EventHandler;
+import vavi.util.Debug;
 
 import static konamiman.z80.utils.NumberUtils.add;
 import static konamiman.z80.utils.NumberUtils.addAsInt;
@@ -44,10 +44,8 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
     public Z80InstructionExecutorImpl() {
         initialize_CB_InstructionsTable();
-        initialize_DD_InstructionsTable();
         initialize_DDCB_InstructionsTable();
         initialize_ED_InstructionsTable();
-        initialize_FD_InstructionsTable();
         initialize_FDCB_InstructionsTable();
         initialize_SingleByte_InstructionsTable();
         generateParityTable();
@@ -114,29 +112,30 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     }
 
     private int execute_SingleByte_Instruction(byte firstOpcodeByte) {
-        Inc_R();
+        incR();
         return SingleByte_InstructionExecutors[firstOpcodeByte & 0xff].get();
     }
 
     private EventHandler<InstructionFetchFinishedEvent> instructionFetchFinished = new EventHandler<>();
 
-    public /* event */ EventHandler<InstructionFetchFinishedEvent> instructionFetchFinished() {
+    public EventHandler<InstructionFetchFinishedEvent> instructionFetchFinished() {
         return instructionFetchFinished;
     }
 
 //#region Auxiliary methods
 
+    /** TODO not thread safe */
+    private InstructionFetchFinishedEvent instructionFetchFinishedEvent = new InstructionFetchFinishedEvent(this);
+
     private void fetchFinished(boolean isRet/*= false*/, boolean isHalt/*= false*/, boolean isLdSp/*= false*/, boolean isEiOrDi/*= false*/) {
-        instructionFetchFinished.fireEvent (new InstructionFetchFinishedEvent(this)
-        {{
-            setRetInstruction(isRet);
-            setHaltInstruction(isHalt);
-            setLdSpInstruction(isLdSp);
-            setEiOrDiInstruction(isEiOrDi);
-        }});
+        instructionFetchFinishedEvent.setRetInstruction(isRet);
+        instructionFetchFinishedEvent.setHaltInstruction(isHalt);
+        instructionFetchFinishedEvent.setLdSpInstruction(isLdSp);
+        instructionFetchFinishedEvent.setEiOrDiInstruction(isEiOrDi);
+        instructionFetchFinished.fireEvent(instructionFetchFinishedEvent);
     }
 
-    private void Inc_R() {
+    private void incR() {
         processorAgent.getRegisters().setR(inc7Bits(processorAgent.getRegisters().getR()));
     }
 
@@ -171,41 +170,34 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         incR();
         var secondOpcodeByte = processorAgent.peekNextOpcode();
 
-        if ((secondOpcodeByte & 0xff) == 0xCB) {
+        if (secondOpcodeByte == (byte) 0xCB) {
             incR();
             processorAgent.fetchNextOpcode();
             var offset = processorAgent.fetchNextOpcode();
             return DDCB_InstructionExecutors[processorAgent.fetchNextOpcode() & 0xff].apply(offset);
         }
 
-        if (DD_InstructionExecutors.containsKey(secondOpcodeByte)) {
         incR();
         processorAgent.fetchNextOpcode();
-            return DD_InstructionExecutors.get(secondOpcodeByte).get();
-        }
-
-        return NOP();
+        return execute_DD_Instructions(secondOpcodeByte);
     }
 
     private int execute_FD_Instruction() {
         incR();
         var secondOpcodeByte = processorAgent.peekNextOpcode();
 
-        if ((secondOpcodeByte & 0xff) == 0xCB) {
+        if (secondOpcodeByte == (byte) 0xCB) {
             incR();
             processorAgent.fetchNextOpcode();
             var offset = processorAgent.fetchNextOpcode();
             return FDCB_InstructionExecutors[processorAgent.fetchNextOpcode() & 0xff].apply(offset);
         }
 
-        if (FD_InstructionExecutors.containsKey(secondOpcodeByte)) {
         incR();
         processorAgent.fetchNextOpcode();
-            return FD_InstructionExecutors.get(secondOpcodeByte).get();
+        return execute_FD_Instructions(secondOpcodeByte);
     }
 
-        return NOP();
-    }
 //#endregion
 
 //#region InstructionsTable.CB
@@ -475,98 +467,98 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
 //#endregion
 
-    private Map<Byte, Supplier<Byte>> DD_InstructionExecutors;
-
-    private void initialize_DD_InstructionsTable() {
-        DD_InstructionExecutors = new HashMap<>() {{
-            put((byte) 0x09, Z80InstructionExecutorImpl.this::ADD_IX_BC);
-            put((byte) 0x19, Z80InstructionExecutorImpl.this::ADD_IX_DE);
-            put((byte) 0x21, Z80InstructionExecutorImpl.this::LD_IX_nn);
-            put((byte) 0x22, Z80InstructionExecutorImpl.this::LD_aa_IX);
-            put((byte) 0x23, Z80InstructionExecutorImpl.this::INC_IX);
-            put((byte) 0x24, Z80InstructionExecutorImpl.this::INC_IXH);
-            put((byte) 0x25, Z80InstructionExecutorImpl.this::DEC_IXH);
-            put((byte) 0x26, Z80InstructionExecutorImpl.this::LD_IXH_n);
-            put((byte) 0x29, Z80InstructionExecutorImpl.this::ADD_IX_IX);
-            put((byte) 0x2A, Z80InstructionExecutorImpl.this::LD_IX_aa);
-            put((byte) 0x2B, Z80InstructionExecutorImpl.this::DEC_IX);
-            put((byte) 0x2C, Z80InstructionExecutorImpl.this::INC_IXL);
-            put((byte) 0x2D, Z80InstructionExecutorImpl.this::DEC_IXL);
-            put((byte) 0x2E, Z80InstructionExecutorImpl.this::LD_IXL_n);
-            put((byte) 0x34, Z80InstructionExecutorImpl.this::INC_aIX_plus_n);
-            put((byte) 0x35, Z80InstructionExecutorImpl.this::DEC_aIX_plus_n);
-            put((byte) 0x36, Z80InstructionExecutorImpl.this::LD_aIX_plus_n_N);
-            put((byte) 0x39, Z80InstructionExecutorImpl.this::ADD_IX_SP);
-            put((byte) 0x44, Z80InstructionExecutorImpl.this::LD_B_IXH);
-            put((byte) 0x45, Z80InstructionExecutorImpl.this::LD_B_IXL);
-            put((byte) 0x46, Z80InstructionExecutorImpl.this::LD_B_aIX_plus_n);
-            put((byte) 0x4C, Z80InstructionExecutorImpl.this::LD_C_IXH);
-            put((byte) 0x4D, Z80InstructionExecutorImpl.this::LD_C_IXL);
-            put((byte) 0x4E, Z80InstructionExecutorImpl.this::LD_C_aIX_plus_n);
-            put((byte) 0x54, Z80InstructionExecutorImpl.this::LD_D_IXH);
-            put((byte) 0x55, Z80InstructionExecutorImpl.this::LD_D_IXL);
-            put((byte) 0x56, Z80InstructionExecutorImpl.this::LD_D_aIX_plus_n);
-            put((byte) 0x5C, Z80InstructionExecutorImpl.this::LD_E_IXH);
-            put((byte) 0x5D, Z80InstructionExecutorImpl.this::LD_E_IXL);
-            put((byte) 0x5E, Z80InstructionExecutorImpl.this::LD_E_aIX_plus_n);
-            put((byte) 0x60, Z80InstructionExecutorImpl.this::LD_IXH_B);
-            put((byte) 0x61, Z80InstructionExecutorImpl.this::LD_IXH_C);
-            put((byte) 0x62, Z80InstructionExecutorImpl.this::LD_IXH_D);
-            put((byte) 0x63, Z80InstructionExecutorImpl.this::LD_IXH_E);
-            put((byte) 0x64, Z80InstructionExecutorImpl.this::LD_IXH_IXH);
-            put((byte) 0x65, Z80InstructionExecutorImpl.this::LD_IXH_IXL);
-            put((byte) 0x66, Z80InstructionExecutorImpl.this::LD_H_aIX_plus_n);
-            put((byte) 0x67, Z80InstructionExecutorImpl.this::LD_IXH_A);
-            put((byte) 0x68, Z80InstructionExecutorImpl.this::LD_IXL_B);
-            put((byte) 0x69, Z80InstructionExecutorImpl.this::LD_IXL_C);
-            put((byte) 0x6A, Z80InstructionExecutorImpl.this::LD_IXL_D);
-            put((byte) 0x6B, Z80InstructionExecutorImpl.this::LD_IXL_E);
-            put((byte) 0x6C, Z80InstructionExecutorImpl.this::LD_IXL_H);
-            put((byte) 0x6D, Z80InstructionExecutorImpl.this::LD_IXL_IXL);
-            put((byte) 0x6E, Z80InstructionExecutorImpl.this::LD_L_aIX_plus_n);
-            put((byte) 0x6F, Z80InstructionExecutorImpl.this::LD_IXL_A);
-            put((byte) 0x70, Z80InstructionExecutorImpl.this::LD_aIX_plus_n_B);
-            put((byte) 0x71, Z80InstructionExecutorImpl.this::LD_aIX_plus_n_C);
-            put((byte) 0x72, Z80InstructionExecutorImpl.this::LD_aIX_plus_n_D);
-            put((byte) 0x73, Z80InstructionExecutorImpl.this::LD_aIX_plus_n_E);
-            put((byte) 0x74, Z80InstructionExecutorImpl.this::LD_aIX_plus_n_H);
-            put((byte) 0x75, Z80InstructionExecutorImpl.this::LD_aIX_plus_n_L);
-            put((byte) 0x77, Z80InstructionExecutorImpl.this::LD_aIX_plus_n_A);
-            put((byte) 0x7C, Z80InstructionExecutorImpl.this::LD_A_IXH);
-            put((byte) 0x7D, Z80InstructionExecutorImpl.this::LD_A_IXL);
-            put((byte) 0x7E, Z80InstructionExecutorImpl.this::LD_A_aIX_plus_n);
-            put((byte) 0x84, Z80InstructionExecutorImpl.this::ADD_A_IXH);
-            put((byte) 0x85, Z80InstructionExecutorImpl.this::ADD_A_IXL);
-            put((byte) 0x86, Z80InstructionExecutorImpl.this::ADD_A_aIX_plus_n);
-            put((byte) 0x8C, Z80InstructionExecutorImpl.this::ADC_A_IXH);
-            put((byte) 0x8D, Z80InstructionExecutorImpl.this::ADC_A_IXL);
-            put((byte) 0x8E, Z80InstructionExecutorImpl.this::ADC_A_aIX_plus_n);
-            put((byte) 0x94, Z80InstructionExecutorImpl.this::SUB_IXH);
-            put((byte) 0x95, Z80InstructionExecutorImpl.this::SUB_IXL);
-            put((byte) 0x96, Z80InstructionExecutorImpl.this::SUB_aIX_plus_n);
-            put((byte) 0x9C, Z80InstructionExecutorImpl.this::SBC_A_IXH);
-            put((byte) 0x9D, Z80InstructionExecutorImpl.this::SBC_A_IXL);
-            put((byte) 0x9E, Z80InstructionExecutorImpl.this::SBC_A_aIX_plus_n);
-            put((byte) 0xA4, Z80InstructionExecutorImpl.this::AND_IXH);
-            put((byte) 0xA5, Z80InstructionExecutorImpl.this::AND_IXL);
-            put((byte) 0xA6, Z80InstructionExecutorImpl.this::AND_aIX_plus_n);
-            put((byte) 0xAC, Z80InstructionExecutorImpl.this::XOR_IXH);
-            put((byte) 0xAD, Z80InstructionExecutorImpl.this::XOR_IXL);
-            put((byte) 0xAE, Z80InstructionExecutorImpl.this::XOR_aIX_plus_n);
-            put((byte) 0xB4, Z80InstructionExecutorImpl.this::OR_IXH);
-            put((byte) 0xB5, Z80InstructionExecutorImpl.this::OR_IXL);
-            put((byte) 0xB6, Z80InstructionExecutorImpl.this::OR_aIX_plus_n);
-            put((byte) 0xBC, Z80InstructionExecutorImpl.this::CP_IXH);
-            put((byte) 0xBD, Z80InstructionExecutorImpl.this::CP_IXL);
-            put((byte) 0xBE, Z80InstructionExecutorImpl.this::CP_aIX_plus_n);
-            put((byte) 0xE1, Z80InstructionExecutorImpl.this::POP_IX);
-            put((byte) 0xE3, Z80InstructionExecutorImpl.this::EX_aSP_IX);
-            put((byte) 0xE5, Z80InstructionExecutorImpl.this::PUSH_IX);
-            put((byte) 0xE9, Z80InstructionExecutorImpl.this::JP_aIX);
-            put((byte) 0xF9, Z80InstructionExecutorImpl.this::LD_SP_IX);
-        }};
 //#region InstructionsTable.DD
 
+    private int execute_DD_Instructions(byte o) {
+        return switch (o) {
+            case (byte) 0x09 -> ADD_IX_BC();
+            case (byte) 0x19 -> ADD_IX_DE();
+            case (byte) 0x21 -> LD_IX_nn();
+            case (byte) 0x22 -> LD_aa_IX();
+            case (byte) 0x23 -> INC_IX();
+            case (byte) 0x24 -> INC_IXH();
+            case (byte) 0x25 -> DEC_IXH();
+            case (byte) 0x26 -> LD_IXH_n();
+            case (byte) 0x29 -> ADD_IX_IX();
+            case (byte) 0x2A -> LD_IX_aa();
+            case (byte) 0x2B -> DEC_IX();
+            case (byte) 0x2C -> INC_IXL();
+            case (byte) 0x2D -> DEC_IXL();
+            case (byte) 0x2E -> LD_IXL_n();
+            case (byte) 0x34 -> INC_aIX_plus_n();
+            case (byte) 0x35 -> DEC_aIX_plus_n();
+            case (byte) 0x36 -> LD_aIX_plus_n_N();
+            case (byte) 0x39 -> ADD_IX_SP();
+            case (byte) 0x44 -> LD_B_IXH();
+            case (byte) 0x45 -> LD_B_IXL();
+            case (byte) 0x46 -> LD_B_aIX_plus_n();
+            case (byte) 0x4C -> LD_C_IXH();
+            case (byte) 0x4D -> LD_C_IXL();
+            case (byte) 0x4E -> LD_C_aIX_plus_n();
+            case (byte) 0x54 -> LD_D_IXH();
+            case (byte) 0x55 -> LD_D_IXL();
+            case (byte) 0x56 -> LD_D_aIX_plus_n();
+            case (byte) 0x5C -> LD_E_IXH();
+            case (byte) 0x5D -> LD_E_IXL();
+            case (byte) 0x5E -> LD_E_aIX_plus_n();
+            case (byte) 0x60 -> LD_IXH_B();
+            case (byte) 0x61 -> LD_IXH_C();
+            case (byte) 0x62 -> LD_IXH_D();
+            case (byte) 0x63 -> LD_IXH_E();
+            case (byte) 0x64 -> LD_IXH_IXH();
+            case (byte) 0x65 -> LD_IXH_IXL();
+            case (byte) 0x66 -> LD_H_aIX_plus_n();
+            case (byte) 0x67 -> LD_IXH_A();
+            case (byte) 0x68 -> LD_IXL_B();
+            case (byte) 0x69 -> LD_IXL_C();
+            case (byte) 0x6A -> LD_IXL_D();
+            case (byte) 0x6B -> LD_IXL_E();
+            case (byte) 0x6C -> LD_IXL_H();
+            case (byte) 0x6D -> LD_IXL_IXL();
+            case (byte) 0x6E -> LD_L_aIX_plus_n();
+            case (byte) 0x6F -> LD_IXL_A();
+            case (byte) 0x70 -> LD_aIX_plus_n_B();
+            case (byte) 0x71 -> LD_aIX_plus_n_C();
+            case (byte) 0x72 -> LD_aIX_plus_n_D();
+            case (byte) 0x73 -> LD_aIX_plus_n_E();
+            case (byte) 0x74 -> LD_aIX_plus_n_H();
+            case (byte) 0x75 -> LD_aIX_plus_n_L();
+            case (byte) 0x77 -> LD_aIX_plus_n_A();
+            case (byte) 0x7C -> LD_A_IXH();
+            case (byte) 0x7D -> LD_A_IXL();
+            case (byte) 0x7E -> LD_A_aIX_plus_n();
+            case (byte) 0x84 -> ADD_A_IXH();
+            case (byte) 0x85 -> ADD_A_IXL();
+            case (byte) 0x86 -> ADD_A_aIX_plus_n();
+            case (byte) 0x8C -> ADC_A_IXH();
+            case (byte) 0x8D -> ADC_A_IXL();
+            case (byte) 0x8E -> ADC_A_aIX_plus_n();
+            case (byte) 0x94 -> SUB_IXH();
+            case (byte) 0x95 -> SUB_IXL();
+            case (byte) 0x96 -> SUB_aIX_plus_n();
+            case (byte) 0x9C -> SBC_A_IXH();
+            case (byte) 0x9D -> SBC_A_IXL();
+            case (byte) 0x9E -> SBC_A_aIX_plus_n();
+            case (byte) 0xA4 -> AND_IXH();
+            case (byte) 0xA5 -> AND_IXL();
+            case (byte) 0xA6 -> AND_aIX_plus_n();
+            case (byte) 0xAC -> XOR_IXH();
+            case (byte) 0xAD -> XOR_IXL();
+            case (byte) 0xAE -> XOR_aIX_plus_n();
+            case (byte) 0xB4 -> OR_IXH();
+            case (byte) 0xB5 -> OR_IXL();
+            case (byte) 0xB6 -> OR_aIX_plus_n();
+            case (byte) 0xBC -> CP_IXH();
+            case (byte) 0xBD -> CP_IXL();
+            case (byte) 0xBE -> CP_aIX_plus_n();
+            case (byte) 0xE1 -> POP_IX();
+            case (byte) 0xE3 -> EX_aSP_IX();
+            case (byte) 0xE5 -> PUSH_IX();
+            case (byte) 0xE9 -> JP_aIX();
+            case (byte) 0xF9 -> LD_SP_IX();
+            // passed 'zexall' test, but if you want to emulate more precisely, pop 'r' register also like 'pc'.
+            default -> { Debug.printf(Level.FINE, "DD %02x", o); registers.decPC(); yield NOP(); }
+        };
     }
 
 //#endregion
@@ -934,100 +926,100 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         };
     }
 
-    private Map<Byte, Supplier<Byte>> FD_InstructionExecutors;
-
-    private void initialize_FD_InstructionsTable() {
-        FD_InstructionExecutors = new HashMap<>() {{
-            put((byte) 0x09, Z80InstructionExecutorImpl.this::ADD_IY_BC);
-            put((byte) 0x19, Z80InstructionExecutorImpl.this::ADD_IY_DE);
-            put((byte) 0x21, Z80InstructionExecutorImpl.this::LD_IY_nn);
-            put((byte) 0x22, Z80InstructionExecutorImpl.this::LD_aa_IY);
-            put((byte) 0x23, Z80InstructionExecutorImpl.this::INC_IY);
-            put((byte) 0x24, Z80InstructionExecutorImpl.this::INC_IYH);
-            put((byte) 0x25, Z80InstructionExecutorImpl.this::DEC_IYH);
-            put((byte) 0x26, Z80InstructionExecutorImpl.this::LD_IYH_n);
-            put((byte) 0x29, Z80InstructionExecutorImpl.this::ADD_IY_IY);
-            put((byte) 0x2A, Z80InstructionExecutorImpl.this::LD_IY_aa);
-            put((byte) 0x2B, Z80InstructionExecutorImpl.this::DEC_IY);
-            put((byte) 0x2C, Z80InstructionExecutorImpl.this::INC_IYL);
-            put((byte) 0x2D, Z80InstructionExecutorImpl.this::DEC_IYL);
-            put((byte) 0x2E, Z80InstructionExecutorImpl.this::LD_IYL_n);
-            put((byte) 0x34, Z80InstructionExecutorImpl.this::INC_aIY_plus_n);
-            put((byte) 0x35, Z80InstructionExecutorImpl.this::DEC_aIY_plus_n);
-            put((byte) 0x36, Z80InstructionExecutorImpl.this::LD_aIY_plus_n_N);
-            put((byte) 0x39, Z80InstructionExecutorImpl.this::ADD_IY_SP);
-            put((byte) 0x44, Z80InstructionExecutorImpl.this::LD_B_IYH);
-            put((byte) 0x45, Z80InstructionExecutorImpl.this::LD_B_IYL);
-            put((byte) 0x46, Z80InstructionExecutorImpl.this::LD_B_aIY_plus_n);
-            put((byte) 0x4C, Z80InstructionExecutorImpl.this::LD_C_IYH);
-            put((byte) 0x4D, Z80InstructionExecutorImpl.this::LD_C_IYL);
-            put((byte) 0x4E, Z80InstructionExecutorImpl.this::LD_C_aIY_plus_n);
-            put((byte) 0x54, Z80InstructionExecutorImpl.this::LD_D_IYH);
-            put((byte) 0x55, Z80InstructionExecutorImpl.this::LD_D_IYL);
-            put((byte) 0x56, Z80InstructionExecutorImpl.this::LD_D_aIY_plus_n);
-            put((byte) 0x5C, Z80InstructionExecutorImpl.this::LD_E_IYH);
-            put((byte) 0x5D, Z80InstructionExecutorImpl.this::LD_E_IYL);
-            put((byte) 0x5E, Z80InstructionExecutorImpl.this::LD_E_aIY_plus_n);
-            put((byte) 0x60, Z80InstructionExecutorImpl.this::LD_IYH_B);
-            put((byte) 0x61, Z80InstructionExecutorImpl.this::LD_IYH_C);
-            put((byte) 0x62, Z80InstructionExecutorImpl.this::LD_IYH_D);
-            put((byte) 0x63, Z80InstructionExecutorImpl.this::LD_IYH_E);
-            put((byte) 0x64, Z80InstructionExecutorImpl.this::LD_IYH_IYH);
-            put((byte) 0x65, Z80InstructionExecutorImpl.this::LD_IYH_IYL);
-            put((byte) 0x66, Z80InstructionExecutorImpl.this::LD_H_aIY_plus_n);
-            put((byte) 0x67, Z80InstructionExecutorImpl.this::LD_IYH_A);
-            put((byte) 0x68, Z80InstructionExecutorImpl.this::LD_IYL_B);
-            put((byte) 0x69, Z80InstructionExecutorImpl.this::LD_IYL_C);
-            put((byte) 0x6A, Z80InstructionExecutorImpl.this::LD_IYL_D);
-            put((byte) 0x6B, Z80InstructionExecutorImpl.this::LD_IYL_E);
-            put((byte) 0x6C, Z80InstructionExecutorImpl.this::LD_IYL_H);
-            put((byte) 0x6D, Z80InstructionExecutorImpl.this::LD_IYL_IYL);
-            put((byte) 0x6E, Z80InstructionExecutorImpl.this::LD_L_aIY_plus_n);
-            put((byte) 0x6F, Z80InstructionExecutorImpl.this::LD_IYL_A);
-            put((byte) 0x70, Z80InstructionExecutorImpl.this::LD_aIY_plus_n_B);
-            put((byte) 0x71, Z80InstructionExecutorImpl.this::LD_aIY_plus_n_C);
-            put((byte) 0x72, Z80InstructionExecutorImpl.this::LD_aIY_plus_n_D);
-            put((byte) 0x73, Z80InstructionExecutorImpl.this::LD_aIY_plus_n_E);
-            put((byte) 0x74, Z80InstructionExecutorImpl.this::LD_aIY_plus_n_H);
-            put((byte) 0x75, Z80InstructionExecutorImpl.this::LD_aIY_plus_n_L);
-            put((byte) 0x77, Z80InstructionExecutorImpl.this::LD_aIY_plus_n_A);
-            put((byte) 0x7C, Z80InstructionExecutorImpl.this::LD_A_IYH);
-            put((byte) 0x7D, Z80InstructionExecutorImpl.this::LD_A_IYL);
-            put((byte) 0x7E, Z80InstructionExecutorImpl.this::LD_A_aIY_plus_n);
-            put((byte) 0x84, Z80InstructionExecutorImpl.this::ADD_A_IYH);
-            put((byte) 0x85, Z80InstructionExecutorImpl.this::ADD_A_IYL);
-            put((byte) 0x86, Z80InstructionExecutorImpl.this::ADD_A_aIY_plus_n);
-            put((byte) 0x8C, Z80InstructionExecutorImpl.this::ADC_A_IYH);
-            put((byte) 0x8D, Z80InstructionExecutorImpl.this::ADC_A_IYL);
-            put((byte) 0x8E, Z80InstructionExecutorImpl.this::ADC_A_aIY_plus_n);
-            put((byte) 0x94, Z80InstructionExecutorImpl.this::SUB_IYH);
-            put((byte) 0x95, Z80InstructionExecutorImpl.this::SUB_IYL);
-            put((byte) 0x96, Z80InstructionExecutorImpl.this::SUB_aIY_plus_n);
-            put((byte) 0x9C, Z80InstructionExecutorImpl.this::SBC_A_IYH);
-            put((byte) 0x9D, Z80InstructionExecutorImpl.this::SBC_A_IYL);
-            put((byte) 0x9E, Z80InstructionExecutorImpl.this::SBC_A_aIY_plus_n);
-            put((byte) 0xA4, Z80InstructionExecutorImpl.this::AND_IYH);
-            put((byte) 0xA5, Z80InstructionExecutorImpl.this::AND_IYL);
-            put((byte) 0xA6, Z80InstructionExecutorImpl.this::AND_aIY_plus_n);
-            put((byte) 0xAC, Z80InstructionExecutorImpl.this::XOR_IYH);
-            put((byte) 0xAD, Z80InstructionExecutorImpl.this::XOR_IYL);
-            put((byte) 0xAE, Z80InstructionExecutorImpl.this::XOR_aIY_plus_n);
-            put((byte) 0xB4, Z80InstructionExecutorImpl.this::OR_IYH);
-            put((byte) 0xB5, Z80InstructionExecutorImpl.this::OR_IYL);
-            put((byte) 0xB6, Z80InstructionExecutorImpl.this::OR_aIY_plus_n);
-            put((byte) 0xBC, Z80InstructionExecutorImpl.this::CP_IYH);
-            put((byte) 0xBD, Z80InstructionExecutorImpl.this::CP_IYL);
-            put((byte) 0xBE, Z80InstructionExecutorImpl.this::CP_aIY_plus_n);
-            put((byte) 0xE1, Z80InstructionExecutorImpl.this::POP_IY);
-            put((byte) 0xE3, Z80InstructionExecutorImpl.this::EX_aSP_IY);
-            put((byte) 0xE5, Z80InstructionExecutorImpl.this::PUSH_IY);
-            put((byte) 0xE9, Z80InstructionExecutorImpl.this::JP_aIY);
-            put((byte) 0xF9, Z80InstructionExecutorImpl.this::LD_SP_IY);
-        }};
 //#endregion
 
 //#region InstructionsTable.FD
 
+    private int execute_FD_Instructions(byte o) {
+        return switch (o) {
+            case (byte) 0x09 -> ADD_IY_BC();
+            case (byte) 0x19 -> ADD_IY_DE();
+            case (byte) 0x21 -> LD_IY_nn();
+            case (byte) 0x22 -> LD_aa_IY();
+            case (byte) 0x23 -> INC_IY();
+            case (byte) 0x24 -> INC_IYH();
+            case (byte) 0x25 -> DEC_IYH();
+            case (byte) 0x26 -> LD_IYH_n();
+            case (byte) 0x29 -> ADD_IY_IY();
+            case (byte) 0x2A -> LD_IY_aa();
+            case (byte) 0x2B -> DEC_IY();
+            case (byte) 0x2C -> INC_IYL();
+            case (byte) 0x2D -> DEC_IYL();
+            case (byte) 0x2E -> LD_IYL_n();
+            case (byte) 0x34 -> INC_aIY_plus_n();
+            case (byte) 0x35 -> DEC_aIY_plus_n();
+            case (byte) 0x36 -> LD_aIY_plus_n_N();
+            case (byte) 0x39 -> ADD_IY_SP();
+            case (byte) 0x44 -> LD_B_IYH();
+            case (byte) 0x45 -> LD_B_IYL();
+            case (byte) 0x46 -> LD_B_aIY_plus_n();
+            case (byte) 0x4C -> LD_C_IYH();
+            case (byte) 0x4D -> LD_C_IYL();
+            case (byte) 0x4E -> LD_C_aIY_plus_n();
+            case (byte) 0x54 -> LD_D_IYH();
+            case (byte) 0x55 -> LD_D_IYL();
+            case (byte) 0x56 -> LD_D_aIY_plus_n();
+            case (byte) 0x5C -> LD_E_IYH();
+            case (byte) 0x5D -> LD_E_IYL();
+            case (byte) 0x5E -> LD_E_aIY_plus_n();
+            case (byte) 0x60 -> LD_IYH_B();
+            case (byte) 0x61 -> LD_IYH_C();
+            case (byte) 0x62 -> LD_IYH_D();
+            case (byte) 0x63 -> LD_IYH_E();
+            case (byte) 0x64 -> LD_IYH_IYH();
+            case (byte) 0x65 -> LD_IYH_IYL();
+            case (byte) 0x66 -> LD_H_aIY_plus_n();
+            case (byte) 0x67 -> LD_IYH_A();
+            case (byte) 0x68 -> LD_IYL_B();
+            case (byte) 0x69 -> LD_IYL_C();
+            case (byte) 0x6A -> LD_IYL_D();
+            case (byte) 0x6B -> LD_IYL_E();
+            case (byte) 0x6C -> LD_IYL_H();
+            case (byte) 0x6D -> LD_IYL_IYL();
+            case (byte) 0x6E -> LD_L_aIY_plus_n();
+            case (byte) 0x6F -> LD_IYL_A();
+            case (byte) 0x70 -> LD_aIY_plus_n_B();
+            case (byte) 0x71 -> LD_aIY_plus_n_C();
+            case (byte) 0x72 -> LD_aIY_plus_n_D();
+            case (byte) 0x73 -> LD_aIY_plus_n_E();
+            case (byte) 0x74 -> LD_aIY_plus_n_H();
+            case (byte) 0x75 -> LD_aIY_plus_n_L();
+            case (byte) 0x77 -> LD_aIY_plus_n_A();
+            case (byte) 0x7C -> LD_A_IYH();
+            case (byte) 0x7D -> LD_A_IYL();
+            case (byte) 0x7E -> LD_A_aIY_plus_n();
+            case (byte) 0x84 -> ADD_A_IYH();
+            case (byte) 0x85 -> ADD_A_IYL();
+            case (byte) 0x86 -> ADD_A_aIY_plus_n();
+            case (byte) 0x8C -> ADC_A_IYH();
+            case (byte) 0x8D -> ADC_A_IYL();
+            case (byte) 0x8E -> ADC_A_aIY_plus_n();
+            case (byte) 0x94 -> SUB_IYH();
+            case (byte) 0x95 -> SUB_IYL();
+            case (byte) 0x96 -> SUB_aIY_plus_n();
+            case (byte) 0x9C -> SBC_A_IYH();
+            case (byte) 0x9D -> SBC_A_IYL();
+            case (byte) 0x9E -> SBC_A_aIY_plus_n();
+            case (byte) 0xA4 -> AND_IYH();
+            case (byte) 0xA5 -> AND_IYL();
+            case (byte) 0xA6 -> AND_aIY_plus_n();
+            case (byte) 0xAC -> XOR_IYH();
+            case (byte) 0xAD -> XOR_IYL();
+            case (byte) 0xAE -> XOR_aIY_plus_n();
+            case (byte) 0xB4 -> OR_IYH();
+            case (byte) 0xB5 -> OR_IYL();
+            case (byte) 0xB6 -> OR_aIY_plus_n();
+            case (byte) 0xBC -> CP_IYH();
+            case (byte) 0xBD -> CP_IYL();
+            case (byte) 0xBE -> CP_aIY_plus_n();
+            case (byte) 0xE1 -> POP_IY();
+            case (byte) 0xE3 -> EX_aSP_IY();
+            case (byte) 0xE5 -> PUSH_IY();
+            case (byte) 0xE9 -> JP_aIY();
+            case (byte) 0xF9 -> LD_SP_IY();
+            // passed 'zexall' test, but if you want to emulate more precisely, pop 'r' register also like 'pc'.
+            default -> { Debug.printf(Level.FINE, "FD %02x", o); registers.decPC(); yield NOP(); }
+        };
     }
 
 //#endregion
