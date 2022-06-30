@@ -142,27 +142,27 @@ class SBC_HL_rr_tests extends InstructionsExecutionTestsBase {
     public void SBC_HL_rr_sets_PF_appropriately(String src, byte opcode) {
         //http://stackoverflow.com/a/8037485/4574
 
-        TestPF(src, opcode, 127, 0, 0);
-        TestPF(src, opcode, 127, 1, 0);
-        TestPF(src, opcode, 127, 127, 0);
-        TestPF(src, opcode, 127, 128, 1);
-        TestPF(src, opcode, 127, 129, 1);
-        TestPF(src, opcode, 127, 255, 1);
-        TestPF(src, opcode, 128, 0, 0);
-        TestPF(src, opcode, 128, 1, 1);
-        TestPF(src, opcode, 128, 127, 1);
-        TestPF(src, opcode, 128, 128, 0);
-        TestPF(src, opcode, 128, 129, 0);
-        TestPF(src, opcode, 128, 255, 0);
-        TestPF(src, opcode, 129, 0, 0);
-        TestPF(src, opcode, 129, 1, 0);
-        TestPF(src, opcode, 129, 127, 1);
-        TestPF(src, opcode, 129, 128, 0);
-        TestPF(src, opcode, 129, 129, 0);
-        TestPF(src, opcode, 129, 255, 0);
+        testPF(src, opcode, 127, 0, 0);
+        testPF(src, opcode, 127, 1, 0);
+        testPF(src, opcode, 127, 127, 0);
+        testPF(src, opcode, 127, 128, 1);
+        testPF(src, opcode, 127, 129, 1);
+        testPF(src, opcode, 127, 255, 1);
+        testPF(src, opcode, 128, 0, 0);
+        testPF(src, opcode, 128, 1, 1);
+        testPF(src, opcode, 128, 127, 1);
+        testPF(src, opcode, 128, 128, 0);
+        testPF(src, opcode, 128, 129, 0);
+        testPF(src, opcode, 128, 255, 0);
+        testPF(src, opcode, 129, 0, 0);
+        testPF(src, opcode, 129, 1, 0);
+        testPF(src, opcode, 129, 127, 1);
+        testPF(src, opcode, 129, 128, 0);
+        testPF(src, opcode, 129, 129, 0);
+        testPF(src, opcode, 129, 255, 0);
     }
 
-    void TestPF(String src, byte opcode, int oldValue, int subtractedValue, int expectedPF) {
+    void testPF(String src, byte opcode, int oldValue, int subtractedValue, int expectedPF) {
         setup(src, createShort((byte) 0, (byte) oldValue), createShort((byte) 0, (byte) subtractedValue));
 
         execute(opcode, prefix);

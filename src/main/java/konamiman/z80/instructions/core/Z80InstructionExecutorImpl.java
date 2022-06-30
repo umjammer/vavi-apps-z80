@@ -10,7 +10,6 @@ import konamiman.z80.interfaces.Z80InstructionExecutor;
 import konamiman.z80.interfaces.Z80ProcessorAgent;
 import konamiman.z80.interfaces.Z80Registers;
 import konamiman.z80.utils.Bit;
-import konamiman.z80.utils.NumberUtils;
 import dotnet4j.util.compat.EventHandler;
 import vavi.util.Debug;
 
@@ -79,7 +78,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         incR();
         var secondOpcodeByte = processorAgent.fetchNextOpcode();
         if (isUnsupportedInstruction(secondOpcodeByte))
-            return executeUnsopported_ED_Instruction(secondOpcodeByte);
+            return executeUnsupported_ED_Instruction(secondOpcodeByte);
         else if((secondOpcodeByte & 0xff) >= 0xA0)
             return ED_Block_InstructionExecutors[(secondOpcodeByte & 0xff) - 0xA0].get();
         else
@@ -100,14 +99,15 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     /**
      * Executes an unsupported ED instruction, that is, an instruction whose opcode is
      * ED xx, where xx is 00-3F, 80-9F, A4-A7, AC-AF, B4-B7, BC-BF or C0-FF.
+     * <p>
+     * You can override this method in derived classes in order to implement a custom
+     * behavior for these unsupported instructions (for example, to implement the multiplication
+     * instructions of the R800 processor).
      *
      * @param secondOpcodeByte The opcode byte fetched after the 0xED.
      * @return The total amount of T states required for the instruction execution.
-     * <remarks>You can override this method in derived classes in order to implement a custom
-     * behavior for these unsupported instructions (for example, to implement the multiplication
-     * instructions of the R800 processor).
      */
-    protected int executeUnsopported_ED_Instruction(byte secondOpcodeByte) {
+    protected int executeUnsupported_ED_Instruction(byte secondOpcodeByte) {
         return NOP2();
     }
 
@@ -124,7 +124,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
 //#region Auxiliary methods
 
-    /** TODO not thread safe */
+    /** TODO for performance, not thread safe */
     private InstructionFetchFinishedEvent instructionFetchFinishedEvent = new InstructionFetchFinishedEvent(this);
 
     private void fetchFinished(boolean isRet/*= false*/, boolean isHalt/*= false*/, boolean isLdSp/*= false*/, boolean isEiOrDi/*= false*/) {
@@ -1558,7 +1558,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
 //#endregion
 
-//#region BIT b,r +
+//#region ParityTable
 
     private static Bit[] parity;
 
@@ -6308,12 +6308,12 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
      * The DAA instruction.
      */
     byte DAA() {
-        final byte CF_NF = 3;
+//        final byte CF_NF = 3;
 
         fetchFinished(false, false, false, false);
 
         // Algorithm borrowed from MAME:
-        // https:// github.com/mamedev/mame/blob/master/src/emu/cpu/z80/z80.c
+        // https://github.com/mamedev/mame/blob/master/src/emu/cpu/z80/z80.c
 
         var oldValue = registers.getA();
         var newValue = oldValue;
@@ -10075,9 +10075,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         registers.setSF(getBit(newValue, 7));
         registers.setZF(Bit.of((newValue == 0)));
         registers.setHF(Bit.of((oldValue ^ newValue) & 0x10));
-        registers.setPF(Bit.of(((newValue & 0xff) == 0x80)));
+        registers.setPF(Bit.of((newValue & 0xff) == 0x80));
         registers.setNF(Bit.ON);
-        registers.setCF(Bit.of((oldValue != 0)));
+        registers.setCF(Bit.of(oldValue != 0));
         setFlags3and5From(newValue);
 
         return 8;
@@ -14263,7 +14263,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         fetchFinished(false, false, false, false);
 
         var oldValue = registers.getA();
-    var newValue = (byte) ((siftLeft(oldValue) | 1) & 0xff);
+        var newValue = (byte) ((siftLeft(oldValue) | 1) & 0xff);
         registers.setA(newValue);
 
         registers.setCF(getBit(oldValue, 7));

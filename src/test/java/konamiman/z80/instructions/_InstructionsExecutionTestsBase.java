@@ -14,7 +14,6 @@ import konamiman.z80.interfaces.Z80Registers;
 import konamiman.z80.utils.Bit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.provider.Arguments;
-import vavi.util.Debug;
 
 import static konamiman.z80.StringExtensions.toMap;
 import static konamiman.z80.utils.NumberUtils.add;
@@ -372,9 +371,9 @@ abstract class InstructionsExecutionTestsBase {
     protected static class FakeInstructionExecutor extends Z80InstructionExecutorImpl {
         public List<Byte> unsupportedExecuted = new ArrayList<>();
 
-        protected @Override int executeUnsopported_ED_Instruction(byte secondOpcodeByte) {
+        protected @Override int executeUnsupported_ED_Instruction(byte secondOpcodeByte) {
             unsupportedExecuted.add(secondOpcodeByte);
-            return super.executeUnsopported_ED_Instruction(secondOpcodeByte);
+            return super.executeUnsupported_ED_Instruction(secondOpcodeByte);
         }
     }
 
