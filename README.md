@@ -71,6 +71,10 @@ The processor class passes [the ZEXDOC test](https://github.com/KnightOS/z80e/bl
 and [the ZEXALL test](https://github.com/KnightOS/z80e/blob/master/gpl/zexall.src) fully except for the BIT instruction.
 You can try these tests yourself by running [the ZexallTest project](ZexallTest/Program.cs).
 
+### Current Score (#0052fce)
+
+ https://gist.github.com/umjammer/ea319aaa7b1ecf10a19b3ade2fd7187b
+
 ## Resources
 
 The following resources have been used to develop this project:
@@ -83,3 +87,7 @@ The following resources have been used to develop this project:
 * [Complete Z80 instruction set](http://www.ticalc.org/archives/files/fileinfo/195/19571.html)
   from [ticalc.org](http://www.ticalc.org). The [instruction tables in the code](Main/Instructions%20Execution/Core)
   were automatically generated from a modified version of this file.
+
+## TODO
+
+ * too slow, x100 slower compare to [my z80](https://github.com/umjammer/vavi-apps-emu88/blob/master/src/main/java/vavi/apps/em88/Z80.java)
