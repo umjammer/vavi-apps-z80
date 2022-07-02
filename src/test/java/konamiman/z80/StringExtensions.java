@@ -18,10 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StringExtensions {
 
-    public static byte asBinaryByte(String binaryString) {
-        return (byte) Integer.parseInt(binaryString.replace(" ", ""), 2);
-    }
-
     static byte[] toByteArray(Collection<Byte> o) {
         byte[] a = new byte[o.size()];
         int i = 0;

@@ -6,7 +6,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static konamiman.z80.StringExtensions.asBinaryByte;
 import static konamiman.z80.utils.NumberUtils.getBit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -26,19 +25,19 @@ class RRD_RLD_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("RRD_RLD_Source")
     public void RRD_RLD_moves_data_appropriately(byte opcode, String direction) {
-        var oldHLContents = asBinaryByte("1001 0110");
-        var oldAValue = asBinaryByte("0011 1010");
+        var oldHLContents = (byte) 0b1001_0110;
+        var oldAValue = (byte) 0b0011_1010;
         var address = setup(oldHLContents, oldAValue);
 
         execute(opcode, prefix);
 
         byte expectedHLContents, expectedAValue;
         if (direction.equals("R")) {
-            expectedHLContents = asBinaryByte("1010 1001");
-            expectedAValue = asBinaryByte("0011 0110");
+            expectedHLContents = (byte) 0b1010_1001;
+            expectedAValue = (byte) 0b0011_0110;
         } else {
-            expectedHLContents = asBinaryByte("0110 1010");
-            expectedAValue = asBinaryByte("0011 1001");
+            expectedHLContents = (byte) 0b0110_1010;
+            expectedAValue = (byte) 0b0011_1001;
         }
 
         assertMemoryContents(address, expectedHLContents);
