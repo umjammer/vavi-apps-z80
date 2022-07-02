@@ -69,7 +69,7 @@ per [The undocumented Z80 documented](http://www.myquest.nl/z80undocumented/) ex
 
 The processor class passes [the ZEXDOC test](https://github.com/KnightOS/z80e/blob/master/gpl/zexdoc.src) fully,
 and [the ZEXALL test](https://github.com/KnightOS/z80e/blob/master/gpl/zexall.src) fully except for the BIT instruction.
-You can try these tests yourself by running [the ZexallTest project](ZexallTest/Program.cs).
+You can try these tests yourself by running [the ZexallTest project](src/test/java/zexalltest/Program.java).
 
 ### Current Score (#0052fce)
 
