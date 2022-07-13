@@ -825,7 +825,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
                 this::SET_7_aIX_plus_n_and_load_L,    // FD
                 this::SET_7_aIX_plus_n,    // FE
                 this::SET_7_aIX_plus_n_and_load_A    // FF
-        ).toArray(new Function[0]);
+        ).toArray(Function[]::new);
     }
 
 //#endregion
@@ -901,7 +901,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
                 this::RETI,    // 7D
                 this::IM_2,    // 7E
                 this::NOP2    // 7F
-        ).toArray(new Supplier[0]);
+        ).toArray(Supplier[]::new);
 
         ED_Block_InstructionExecutors = new Supplier[] {
                 this::LDI,         // A0
@@ -1286,7 +1286,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
                 this::SET_7_aIY_plus_n_and_load_L,    // FD
                 this::SET_7_aIY_plus_n,    // FE
                 this::SET_7_aIY_plus_n_and_load_A    // FF
-        ).toArray(new Function[0]);
+        ).toArray(Function[]::new);
     }
 
 //#endregion

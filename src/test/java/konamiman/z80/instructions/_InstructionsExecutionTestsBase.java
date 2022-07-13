@@ -7,15 +7,16 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.flextrade.jfixture.JFixture;
+import dotnet4j.util.compat.CollectionUtilities;
 import konamiman.z80.impls.Z80RegistersImpl;
 import konamiman.z80.instructions.core.Z80InstructionExecutorImpl;
 import konamiman.z80.interfaces.Z80ProcessorAgent;
 import konamiman.z80.interfaces.Z80Registers;
 import konamiman.z80.utils.Bit;
+import org.apache.tools.ant.util.CollectionUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.provider.Arguments;
 
-import static konamiman.z80.StringExtensions.toMap;
 import static konamiman.z80.utils.NumberUtils.add;
 import static konamiman.z80.utils.NumberUtils.createShort;
 import static konamiman.z80.utils.NumberUtils.getHighByte;
@@ -208,7 +209,7 @@ abstract class InstructionsExecutionTestsBase {
         if (flagNames.length == 0)
             flagNames = new String[] {"C", "H", "S", "Z", "P", "N", "Flag3", "Flag5"};
 
-        var randomFlags = toMap(flagNames, x -> x, x -> fixture.create(Bit.class));
+        var randomFlags = CollectionUtilities.toMap(flagNames, x -> x, x -> fixture.create(Bit.class));
 
         for (var flag : flagNames)
             setFlag(flag, randomFlags.get(flag));
