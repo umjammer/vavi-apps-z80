@@ -35,7 +35,7 @@ public class ClockSynchronizerImpl implements konamiman.z80.interfaces.ClockSync
     }
 
     public void tryWait(int periodLengthInCycles) {
-        accummulatedMicroseconds += (periodLengthInCycles / effectiveClockFrequencyInMHz);
+        accummulatedMicroseconds += (long) (periodLengthInCycles / effectiveClockFrequencyInMHz);
 
         var microsecondsPending = accummulatedMicroseconds - stopWatch.getElapsedMilliseconds();
 
