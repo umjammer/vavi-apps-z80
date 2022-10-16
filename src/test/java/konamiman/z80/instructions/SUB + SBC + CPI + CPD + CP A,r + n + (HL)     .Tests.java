@@ -28,6 +28,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 class SUB_SBC_CPI_CPD_CP_r_tests extends InstructionsExecutionTestsBase {
 
     private static final byte cpidrPrefix = (byte) 0xED;
+    /** should be sorted (used for binary search) */
     private static final byte[] cpidrOpcodes = new byte[] {(byte) 0xA1, (byte) 0xA9, (byte) 0xB1, (byte) 0xFF};
 
     static Stream<Arguments> SUB_SBC_A_A_Source() {

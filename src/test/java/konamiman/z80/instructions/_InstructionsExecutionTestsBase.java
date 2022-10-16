@@ -446,7 +446,10 @@ abstract class InstructionsExecutionTestsBase {
         return createAddressFixture((short) 1);
     }
 
-    /** TODO some tests doesn't allow address 1 */
+    /**
+     * TODO some tests doesn't allow address 1
+     * @param excepts should be sorted (binary search is used inside)
+     */
     protected short createAddressFixture(short... excepts) {
         short s;
         do {

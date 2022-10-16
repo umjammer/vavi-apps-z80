@@ -1,5 +1,6 @@
 [![Release](https://jitpack.io/v/umjammer/vavi-apps-z80.svg)](https://jitpack.io/#umjammer/vavi-apps-z80)
 [![Java CI with Maven](https://github.com/umjammer/vavi-apps-z80/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/umjammer/vavi-apps-z80/actions)
+![Java](https://img.shields.io/badge/Java-17-b07219)
 
 # vavi-apps-z80
 
@@ -85,8 +86,8 @@ The following resources have been used to develop this project:
 * [Z80 technical reference](http://www.worldofspectrum.org/faq/reference/z80reference.htm)
   at [WorldOfSpectrum.org](http://www.worldofspectrum.org)
 * [Complete Z80 instruction set](http://www.ticalc.org/archives/files/fileinfo/195/19571.html)
-  from [ticalc.org](http://www.ticalc.org). The [instruction tables in the code](Main/Instructions%20Execution/Core)
-  were automatically generated from a modified version of this file.
+  from [ticalc.org](http://www.ticalc.org). The instruction tables in the code are based on [the code](https://github.com/Konamiman/Z80dotNet/tree/master/Main/Instructions%20Execution/Core)
+  automatically generated from a modified version of this file.
 
 ## TODO
 
