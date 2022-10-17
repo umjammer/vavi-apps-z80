@@ -1,5 +1,6 @@
 [![Release](https://jitpack.io/v/umjammer/vavi-apps-z80.svg)](https://jitpack.io/#umjammer/vavi-apps-z80)
-[![Java CI with Maven](https://github.com/umjammer/vavi-apps-z80/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/umjammer/vavi-apps-z80/actions)
+[![Java CI with Maven](https://github.com/umjammer/vavi-apps-z80/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-apps-z80/actions)
+[![CodeQL](https://github.com/umjammer/vavi-apps-z80/actions/workflows/codeql.yml/badge.svg)](https://github.com/umjammer/vavi-apps-z80/actions/workflows/codeql-analysis.yml)
 ![Java](https://img.shields.io/badge/Java-17-b07219)
 
 # vavi-apps-z80
