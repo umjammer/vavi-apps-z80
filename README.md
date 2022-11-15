@@ -93,3 +93,4 @@ The following resources have been used to develop this project:
 ## TODO
 
  * too slow, x100 slower compare to [my z80](https://github.com/umjammer/vavi-apps-emu88/blob/master/src/main/java/vavi/apps/em88/Z80.java)
+ * unit tests have random fixture problems, if it would be failed, rerun.

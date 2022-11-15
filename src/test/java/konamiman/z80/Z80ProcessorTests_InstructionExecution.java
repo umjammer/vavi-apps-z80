@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.flextrade.jfixture.JFixture;
+import dotnet4j.util.compat.EventHandler;
 import konamiman.z80.enums.ProcessorState;
 import konamiman.z80.enums.StopReason;
 import konamiman.z80.events.InstructionFetchFinishedEvent;
@@ -22,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import vavi.util.Debug;
-import dotnet4j.util.compat.EventHandler;
 
 import static konamiman.z80.utils.NumberUtils.inc;
 import static konamiman.z80.utils.NumberUtils.toByteArray;
@@ -553,7 +553,7 @@ public class Z80ProcessorTests_InstructionExecution {
         var portAddress = fixture.create(Byte.TYPE);
         var value = fixture.create(Byte.TYPE);
 
-Debug.printf("%d, %d, %d, %d, %d, %d, %d", executionStates, m1ReadMemoryStates, memoryAccessStates, portAccessStates, memoryAddress, portAddress, value);
+        Debug.printf("%d, %d, %d, %d, %d, %d, %d", executionStates, m1ReadMemoryStates, memoryAccessStates, portAccessStates, memoryAddress, portAddress, value);
 
         setStatesReturner(b -> executionStates);
 
@@ -579,10 +579,10 @@ Debug.printf("%d, %d, %d, %d, %d, %d, %d", executionStates, m1ReadMemoryStates, 
         var expected =
                 //3 instructions of 1 byte each executed...
                 executionStates * 3 +
-                m1ReadMemoryStates * 3 +
-                //...plus 1 read+1 write to memory + port
-                memoryAccessStates * 2 +
-                portAccessStates * 2;
+                        m1ReadMemoryStates * 3 +
+                        //...plus 1 read+1 write to memory + port
+                        memoryAccessStates * 2 +
+                        portAccessStates * 2;
 
         assertEquals(expected, sut.getTStatesElapsedSinceReset());
         assertEquals(expected, sut.getTStatesElapsedSinceStart());
@@ -937,9 +937,9 @@ Debug.printf("%d, %d, %d, %d, %d, %d, %d", executionStates, m1ReadMemoryStates, 
         var expected =
                 //3 instructions of 1 byte each executed...
                 executionStates * 3 +
-                M1readMemoryStates * 3 +
-                //...plus 1 read from memory
-                memoryAccessStates;
+                        M1readMemoryStates * 3 +
+                        //...plus 1 read from memory
+                        memoryAccessStates;
 
         AssertExecuted(NOP_opcode, 1);
         AssertExecuted(LD_SP_HL_opcode, 1);
@@ -997,10 +997,10 @@ Debug.printf("%d, %d, %d, %d, %d, %d, %d", executionStates, m1ReadMemoryStates, 
 
         var expected =
                 executionStates * 3 +
-                M1readMemoryStates_0 +
-                M1readMemoryStates_1 +
-                M1readMemoryStates_2 +
-                M1readMemoryStates_3;
+                        M1readMemoryStates_0 +
+                        M1readMemoryStates_1 +
+                        M1readMemoryStates_2 +
+                        M1readMemoryStates_3;
 
         AssertExecuted(NOP_opcode, 1);
         AssertExecuted(LD_SP_HL_opcode, 1);
