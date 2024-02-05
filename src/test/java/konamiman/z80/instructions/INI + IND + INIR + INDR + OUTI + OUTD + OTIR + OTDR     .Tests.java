@@ -26,6 +26,7 @@ class INI_IND_INIR_INDR_tests extends InstructionsExecutionTestsBase {
     public static final byte OTDR_Source = (byte) 0xBB;
 
     @BeforeEach
+    @Override
     protected void setup() {
         super.setup();
     }

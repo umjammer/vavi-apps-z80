@@ -27,7 +27,7 @@ public interface Memory {
      *
      * @param startAddress First memory address that will be set
      * @param contents New contents of the memory
-     * @param startIndex Start index for starting copying within the contens array
+     * @param startIndex Start index for starting copying within the contents array
      * @param length Length of the contents array that will be copied. If null,
      * the whole array is copied.
      * @throws IndexOutOfBoundsException <c>startAddress</c> + <c>length</c> (or <c>content.Length</c>)

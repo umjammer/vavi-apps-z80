@@ -29,7 +29,7 @@ public enum ProcessorState {
     Running,
 
     /**
-     * Executing only one instruction. The {@link Z80Processor#executeNextInstruction()} methodwas invoked
+     * Executing only one instruction. The {@link Z80Processor#executeNextInstruction()} method was invoked
      * and has not returned yet.
      */
     ExecutingOneInstruction

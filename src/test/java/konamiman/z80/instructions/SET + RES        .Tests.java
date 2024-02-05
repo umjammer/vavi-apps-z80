@@ -24,6 +24,7 @@ class SET_tests extends InstructionsExecutionTestsBase {
     private byte offset;
 
     @BeforeEach
+    @Override
     protected void setup() {
         super.setup();
         offset = fixture.create(Byte.TYPE);

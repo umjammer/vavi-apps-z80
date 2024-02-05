@@ -33,7 +33,7 @@ public interface ClockSynchronizer {
      * @param periodLengthInCycles Amount of period cycles to simulate
      * <remarks> This method will do its best to accurately reproduce the simulated system's clock speed
      * by pausing the current thread for the specified amount of time. However, depending on the host system's
-     * clock accuracy the method may need to accummulate several clock cycles across different method invocations
+     * clock accuracy the method may need to accumulate several clock cycles across different method invocations
      * before actually pausing the thread.
      */
     void tryWait(int periodLengthInCycles);

@@ -81,6 +81,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 
 //#region Processor control
 
+    @Override
     public void start(Object userState/*= null*/) {
         if (userState != null)
             this.userState = userState;
@@ -91,6 +92,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         instructionExecutionLoop(false);
     }
 
+    @Override
     public void continue_() {
         instructionExecutionLoop(false);
     }
@@ -122,7 +124,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 
             var executionTStates = executeNextOpcode();
 
-            totalTStates = executionTStates + executionContext.getAccummulatedMemoryWaitStates();
+            totalTStates = executionTStates + executionContext.getAccumulatedMemoryWaitStates();
             tStatesElapsedSinceStart += totalTStates;
             tStatesElapsedSinceReset += totalTStates;
 
@@ -216,6 +218,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         return 0;
     }
 
+    @Override
     public void executeCall(short address) {
         var oldAddress = registers.getPC();
         var sp = (short) (registers.getSP() - 1);
@@ -227,6 +230,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         registers.setPC(address);
     }
 
+    @Override
     public void executeRet() {
         var sp = registers.getSP();
         var newPC = createShort(readFromMemoryInternal(sp), readFromMemoryInternal((short) (sp + 1)));
@@ -318,6 +322,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         return eventArgs;
     }
 
+    @Override
     public void reset() {
         registers.setIFF1(Bit.of(0));
         registers.setIFF2(Bit.of(0));
@@ -333,6 +338,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         startOfStack = registers.getSP();
     }
 
+    @Override
     public int executeNextInstruction() {
         return instructionExecutionLoop(/*isSingleInstruction:*/ true);
     }
@@ -341,15 +347,21 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 
 //#region Information and state
 
-    private long tStatesElapsedSinceStart; public long getTStatesElapsedSinceStart() { return tStatesElapsedSinceStart; }
+    private long tStatesElapsedSinceStart;
+    @Override public long getTStatesElapsedSinceStart() { return tStatesElapsedSinceStart; }
 
-    private long tStatesElapsedSinceReset; public long getTStatesElapsedSinceReset() { return tStatesElapsedSinceReset; }
+    private long tStatesElapsedSinceReset;
+    @Override public long getTStatesElapsedSinceReset() { return tStatesElapsedSinceReset; }
 
-    private StopReason stopReason; public StopReason getStopReason() { return stopReason; }
+    private StopReason stopReason;
+    @Override public StopReason getStopReason() { return stopReason; }
 
-    private ProcessorState state; public ProcessorState getState() { return state; }
+    private ProcessorState state;
+    @Override public ProcessorState getState() { return state; }
 
-    private Object userState; public Object getUserState() { return userState; } public void setUserState(Object value) { userState = value; }
+    private Object userState;
+    @Override public Object getUserState() { return userState; }
+    @Override public void setUserState(Object value) { userState = value; }
 
 //    @Override
 //    public boolean getIsHalted() {
@@ -357,13 +369,16 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 //    }
 
     protected boolean isHalted;
+    @Override
     public boolean getIsHalted() { return isHalted; }
 
     private byte interruptMode;
+    @Override
     public byte getInterruptMode()
         {
             return interruptMode;
         }
+    @Override
     public void setInterruptMode(byte value) {
         if(value > 2)
             throw new IllegalArgumentException("Interrupt mode can be set to 0, 1 or 2 only");
@@ -372,6 +387,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
     }
 
     protected short startOfStack;
+    @Override
     public short getStartOfStack() { return startOfStack; }
 
 //#endregion
@@ -379,9 +395,11 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 //#region Inside and outside world
 
     private Z80Registers registers;
+    @Override
     public Z80Registers getRegisters() {
         return registers;
     }
+    @Override
     public void setRegisters(Z80Registers value) {
         if(value == null)
             throw new NullPointerException("Registers");
@@ -390,9 +408,11 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
     }
 
     private Memory memory;
+    @Override
     public Memory getMemory() {
         return memory;
     }
+    @Override
     public void setMemory(Memory value) {
         if(value == null)
             throw new NullPointerException("Memory");
@@ -402,11 +422,12 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 
     private MemoryAccessMode[] memoryAccessModes = new MemoryAccessMode[MemorySpaceSize];
 
+    @Override
     public void setMemoryAccessMode(short startAddress, int length, MemoryAccessMode mode) {
         setArrayContents(memoryAccessModes, startAddress, length, mode);
     }
 
-    private <T> void setArrayContents(T[] array, short startIndex, int length, T value) {
+    private static <T> void setArrayContents(T[] array, short startIndex, int length, T value) {
         if (length < 0)
             throw new IllegalArgumentException("length can't be negative");
         if (startIndex + length > array.length)
@@ -417,15 +438,18 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         System.arraycopy(data, 0, array, startIndex & 0xffff, length);
     }
 
+    @Override
     public MemoryAccessMode getMemoryAccessMode(short address) {
         return memoryAccessModes[address & 0xffff];
     }
 
     private Memory portsSpace;
+    @Override
     public Memory getPortsSpace() {
         return portsSpace;
     }
     /** @throws NullPointerException value is null */
+    @Override
     public void setPortsSpace(Memory value) {
         if (value == null) throw new NullPointerException("PortsSpace");
 
@@ -434,17 +458,22 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 
     private MemoryAccessMode[] portsAccessModes = new MemoryAccessMode[PortSpaceSize];
 
+    @Override
     public void setPortsSpaceAccessMode(byte startPort, int length, MemoryAccessMode mode) {
         setArrayContents(portsAccessModes, (short) (startPort & 0xff), length, mode);
     }
 
+    @Override
     public MemoryAccessMode getPortAccessMode(byte portNumber) {
         return portsAccessModes[portNumber & 0xff];
     }
 
     private List<Z80InterruptSource> interruptSources;
+    @SuppressWarnings("rawtypes")
     private EventHandler.EventListener defaultListener = args -> setNmiInterruptPending(true);
 
+    @Override
+    @SuppressWarnings("unchecked")
     public void registerInterruptSource(Z80InterruptSource source) {
         if (interruptSources.contains(source)) {
             Debug.println("already contains source");
@@ -471,10 +500,13 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         }
     }
 
+    @Override
     public List<Z80InterruptSource> getRegisteredInterruptSources() {
         return interruptSources;
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
     public void unregisterAllInterruptSources() {
         for (var source : interruptSources) {
             source.nmiInterruptPulse().removeListener(defaultListener);
@@ -490,9 +522,11 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
     private float effectiveClockFrequency;
 
     private float clockFrequencyInMHz;
+    @Override
     public float getClockFrequencyInMHz() {
         return clockFrequencyInMHz;
     }
+    @Override
     public void setClockFrequencyInMHz(float value) {
         setEffectiveClockFrequency(value, _ClockSpeedFactor);
         clockFrequencyInMHz = value;
@@ -510,57 +544,71 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
     }
 
     private float _ClockSpeedFactor;
+    @Override
     public float getClockSpeedFactor()
         {
             return _ClockSpeedFactor;
         }
+    @Override
     public void setClockSpeedFactor(float value) {
         setEffectiveClockFrequency(clockFrequencyInMHz, value);
         _ClockSpeedFactor = value;
     }
 
-    private boolean autoStopOnDiPlusHalt; public boolean getAutoStopOnDiPlusHalt() { return autoStopOnDiPlusHalt; } public void setAutoStopOnDiPlusHalt(boolean value) { autoStopOnDiPlusHalt = value; }
+    private boolean autoStopOnDiPlusHalt; @Override
+    public boolean getAutoStopOnDiPlusHalt() { return autoStopOnDiPlusHalt; } @Override
+    public void setAutoStopOnDiPlusHalt(boolean value) { autoStopOnDiPlusHalt = value; }
 
-    private boolean autoStopOnRetWithStackEmpty; public boolean getAutoStopOnRetWithStackEmpty() { return autoStopOnRetWithStackEmpty; } public void setAutoStopOnRetWithStackEmpty(boolean value) { autoStopOnRetWithStackEmpty = value; }
+    private boolean autoStopOnRetWithStackEmpty; @Override
+    public boolean getAutoStopOnRetWithStackEmpty() { return autoStopOnRetWithStackEmpty; } @Override
+    public void setAutoStopOnRetWithStackEmpty(boolean value) { autoStopOnRetWithStackEmpty = value; }
 
     private byte[] memoryWaitStatesForM1 = new byte[MemorySpaceSize];
 
+    @Override
     public void setMemoryWaitStatesForM1(short startAddress, int length, byte waitStates) {
 //        SetArrayContents(memoryWaitStatesForM1, startAddress, length, waitStates);
         Arrays.fill(memoryWaitStatesForM1, startAddress & 0xffff, (startAddress & 0xffff) + length, waitStates);
     }
 
+    @Override
     public byte getMemoryWaitStatesForM1(short address) {
         return memoryWaitStatesForM1[address & 0xffff];
     }
 
     private byte[] memoryWaitStatesForNonM1 = new byte[MemorySpaceSize];
 
+    @Override
     public void setMemoryWaitStatesForNonM1(short startAddress, int length, byte waitStates) {
 //        SetArrayContents(memoryWaitStatesForNonM1, startAddress, length, waitStates);
         Arrays.fill(memoryWaitStatesForNonM1, startAddress & 0xffff, (startAddress & 0xffff) + length, waitStates);
     }
 
+    @Override
     public byte getMemoryWaitStatesForNonM1(short address) {
         return memoryWaitStatesForNonM1[address & 0xffff];
     }
 
     private byte[] portWaitStates = new byte[PortSpaceSize];
 
+    @Override
     public void setPortWaitStates(short startPort, int length, byte waitStates) {
 //        SetArrayContents(portWaitStates, startPort, length, waitStates);
         Arrays.fill(portWaitStates, startPort & 0xffff, (startPort & 0xffff) + length, waitStates);
     }
 
+    @Override
     public byte getPortWaitStates(byte portNumber) {
         return portWaitStates[portNumber & 0xff];
     }
 
     /** don't set directory, use setter */
     private Z80InstructionExecutor instructionExecutor;
+    @Override
     public Z80InstructionExecutor getInstructionExecutor() {
         return instructionExecutor;
     }
+    @Override
     public void setInstructionExecutor(Z80InstructionExecutor value) {
         if(value == null)
             throw new NullPointerException("InstructionExecutor");
@@ -574,9 +622,11 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
     }
 
     private ClockSynchronizer clockSynchronizer;
+    @Override
     public ClockSynchronizer getClockSynchronizer() {
         return clockSynchronizer;
     }
+    @Override
     public void setClockSynchronizer(ClockSynchronizer value) {
         clockSynchronizer = value;
         if (value == null)
@@ -621,6 +671,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 
 //#region Members of Z80ProcessorAgent
 
+    @Override
     public byte fetchNextOpcode() {
         failIfNoExecutionContext();
 
@@ -638,7 +689,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
                     MemoryAccessEventType.AfterMemoryRead,
                     getMemoryWaitStatesForM1(address));
         } else {
-            executionContext.setAccummulatedMemoryWaitStates(executionContext.getAccummulatedMemoryWaitStates() +
+            executionContext.setAccumulatedMemoryWaitStates(executionContext.getAccumulatedMemoryWaitStates() +
                     getMemoryWaitStatesForM1(executionContext.getAddressOfPeekedOpcode()));
             opcode = executionContext.getPeekedOpcode();
             executionContext.setPeekedOpcode(null);
@@ -649,6 +700,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         return opcode;
     }
 
+    @Override
     public byte peekNextOpcode() {
         failIfNoExecutionContext();
 
@@ -678,6 +730,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
             throw new IllegalStateException("This method can be invoked only when an instruction is being executed.");
     }
 
+    @Override
     public byte readFromMemory(short address) {
         failIfNoExecutionContext();
         failIfNoInstructionFetchComplete();
@@ -717,7 +770,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
             value = beforeEventArgs.getValue();
 
         if (executionContext != null)
-            executionContext.setAccummulatedMemoryWaitStates(executionContext.getAccummulatedMemoryWaitStates() + waitStates);
+            executionContext.setAccumulatedMemoryWaitStates(executionContext.getAccumulatedMemoryWaitStates() + waitStates);
 
         var afterEventArgs = fireMemoryAccessEvent(
                 afterEventType,
@@ -739,6 +792,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         return eventArgs;
     }
 
+    @Override
     public void writeToMemory(short address, byte value) {
         failIfNoExecutionContext();
         failIfNoInstructionFetchComplete();
@@ -772,7 +826,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
             memory.set(address & 0xffff, beforeEventArgs.getValue());
 
         if (executionContext != null)
-            executionContext.setAccummulatedMemoryWaitStates(executionContext.getAccummulatedMemoryWaitStates() + waitStates);
+            executionContext.setAccumulatedMemoryWaitStates(executionContext.getAccumulatedMemoryWaitStates() + waitStates);
 
         fireMemoryAccessEvent(
                 afterEventType,
@@ -782,6 +836,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
                 beforeEventArgs.getCancelMemoryAccess());
     }
 
+    @Override
     public byte readFromPort(byte portNumber) {
         failIfNoExecutionContext();
         failIfNoInstructionFetchComplete();
@@ -795,6 +850,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
                 getPortWaitStates(portNumber));
     }
 
+    @Override
     public void writeToPort(byte portNumber, byte value) {
         failIfNoExecutionContext();
         failIfNoInstructionFetchComplete();
@@ -809,6 +865,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
                 getPortWaitStates(portNumber));
     }
 
+    @Override
     public void setInterruptMode2(byte interruptMode) {
         failIfNoExecutionContext();
         failIfNoInstructionFetchComplete();
@@ -816,6 +873,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         this.interruptMode = interruptMode;
     }
 
+    @Override
     public void stop(boolean isPause/*= false*/) {
         failIfNoExecutionContext();
 

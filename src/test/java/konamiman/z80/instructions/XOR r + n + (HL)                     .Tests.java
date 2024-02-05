@@ -3,7 +3,6 @@ package konamiman.z80.instructions;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-import konamiman.z80.utils.NumberUtils;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -19,7 +18,7 @@ class XOR_r_tests extends InstructionsExecutionTestsBase {
     static Stream<Arguments> XOR_r_Source() {
         var combinations = new ArrayList<Arguments>();
 
-        final var registers = new String[] {"B", "C", "D", "E", "H", "L", "(HL)", "n", "IXH", "IXL", "IYH", "IYL", "(IX+n)", "(IY+n)"};
+        var registers = new String[] {"B", "C", "D", "E", "H", "L", "(HL)", "n", "IXH", "IXL", "IYH", "IYL", "(IX+n)", "(IY+n)"};
         for (var src = 0; src < registers.length; src++) {
             var reg = registers[src];
             var i = new int[] {src};

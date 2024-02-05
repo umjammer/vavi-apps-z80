@@ -14,7 +14,7 @@ class RRCA_tests extends InstructionsExecutionTestsBase {
 
     @Test
     public void RRCA_rotates_byte_correctly() {
-        final var values = new byte[] {(byte) 0x82, 0x41, (byte) 0xA0, 0x50, 0x28, 0x14, 0x0A, 0x05};
+        var values = new byte[] {(byte) 0x82, 0x41, (byte) 0xA0, 0x50, 0x28, 0x14, 0x0A, 0x05};
         registers.setA((byte) 0x05);
 
         for (byte value : values) {

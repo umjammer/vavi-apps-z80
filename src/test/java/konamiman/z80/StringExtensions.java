@@ -1,13 +1,8 @@
 package konamiman.z80;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 import com.flextrade.jfixture.JFixture;
-import com.sun.source.tree.AssertTree;
 import org.junit.jupiter.api.Test;
 import vavi.util.Debug;
 

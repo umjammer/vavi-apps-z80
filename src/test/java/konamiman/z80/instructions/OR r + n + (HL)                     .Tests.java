@@ -18,7 +18,7 @@ class OR_r_tests extends InstructionsExecutionTestsBase {
     static Stream<Arguments> OR_r_Source() {
         var combinations = new ArrayList<Arguments>();
 
-        final var registers = new String[] {"B", "C", "D", "E", "H", "L", "(HL)", "n", "IXH", "IXL", "IYH", "IYL", "(IX+n)", "(IY+n)"};
+        var registers = new String[] {"B", "C", "D", "E", "H", "L", "(HL)", "n", "IXH", "IXL", "IYH", "IYL", "(IX+n)", "(IY+n)"};
         for (var src = 0; src < registers.length; src++) {
             var reg = registers[src];
             var i = new int[] {src};

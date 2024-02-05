@@ -22,7 +22,7 @@ class SRL_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("SRL_Source")
     public void SRL_shifts_byte_and_loads_register_correctly(String reg, String destReg, byte opcode, Byte prefix, int bit) {
-        final var values = new byte[] {0x7F, 0x3F, 0x1F, 0x0F, 0x07, 0x03, 0x01, 0};
+        var values = new byte[] {0x7F, 0x3F, 0x1F, 0x0F, 0x07, 0x03, 0x01, 0};
         setupRegOrMem(reg, (byte) 0xFF, offset);
 
         for (byte value : values) {

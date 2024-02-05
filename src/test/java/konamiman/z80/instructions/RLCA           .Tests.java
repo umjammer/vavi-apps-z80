@@ -14,7 +14,7 @@ class RLCA_tests extends InstructionsExecutionTestsBase {
 
     @Test
     public void RLCA_rotates_byte_correctly() {
-        final var values = new byte[] {0xA, 0x14, 0x28, 0x50, (byte) 0xA0, 0x41, (byte) 0x82, 0x05};
+        var values = new byte[] {0xA, 0x14, 0x28, 0x50, (byte) 0xA0, 0x41, (byte) 0x82, 0x05};
         registers.setA((byte) 0x05);
 
         for (byte value : values) {

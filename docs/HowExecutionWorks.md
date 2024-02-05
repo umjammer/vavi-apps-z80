@@ -1,6 +1,6 @@
 ## How Execution Works
 
-The [Z80Processor class](../Main/Z80Processor.cs) simulates the processor execution in a syncrhonous way. You start the execution with any of the available control methods and then wait until the method returns (see the [execution stop conditions](StopConditions.md)). There are two execution modes, depending on the control method you use to start execution.
+The [Z80Processor class](../Main/Z80Processor.cs) simulates the processor execution in a synchronous way. You start the execution with any of the available control methods and then wait until the method returns (see the [execution stop conditions](StopConditions.md)). There are two execution modes, depending on the control method you use to start execution.
 
 ### Instruction execution loop mode
 

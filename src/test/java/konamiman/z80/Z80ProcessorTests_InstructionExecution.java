@@ -799,10 +799,12 @@ public class Z80ProcessorTests_InstructionExecution {
     static class FakeInstructionExecutor implements Z80InstructionExecutor {
         private Z80ProcessorAgent ProcessorAgent;
 
+        @Override
         public Z80ProcessorAgent getProcessorAgent() {
             return ProcessorAgent;
         }
 
+        @Override
         public void setProcessorAgent(Z80ProcessorAgent value) {
             ProcessorAgent = value;
         }
@@ -837,6 +839,7 @@ public class Z80ProcessorTests_InstructionExecution {
             tStatesReturner = value;
         }
 
+        @Override
         public int execute(byte firstOpcodeByte) {
             if (timesEachInstructionIsExecuted.containsKey(firstOpcodeByte))
                 timesEachInstructionIsExecuted.put(firstOpcodeByte, timesEachInstructionIsExecuted.get(firstOpcodeByte) + 1);
@@ -865,6 +868,7 @@ public class Z80ProcessorTests_InstructionExecution {
 
         EventHandler<InstructionFetchFinishedEvent> instructionFetchFinished = new EventHandler<>();
 
+        @Override
         public /*event*/ EventHandler<InstructionFetchFinishedEvent> instructionFetchFinished() {
             return instructionFetchFinished;
         }

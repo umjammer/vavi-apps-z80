@@ -39,7 +39,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
     private Z80Registers registers;
 
-    private Z80ProcessorAgent processorAgent; public Z80ProcessorAgent getProcessorAgent() { return processorAgent; } public void setProcessorAgent(Z80ProcessorAgent value) { processorAgent = value; }
+    private Z80ProcessorAgent processorAgent;
+    @Override public Z80ProcessorAgent getProcessorAgent() { return processorAgent; }
+    @Override public void setProcessorAgent(Z80ProcessorAgent value) { processorAgent = value; }
 
     public Z80InstructionExecutorImpl() {
         initialize_CB_InstructionsTable();
@@ -50,21 +52,17 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         generateParityTable();
     }
 
+    @Override
     public int execute(byte firstOpcodeByte) {
         registers = processorAgent.getRegisters();
 
-        switch(firstOpcodeByte & 0xff) {
-        case 0xCB:
-            return execute_CB_Instruction();
-        case 0xDD:
-            return execute_DD_Instruction();
-        case 0xED:
-            return execute_ED_Instruction();
-        case 0xFD:
-            return execute_FD_Instruction();
-        default:
-            return execute_SingleByte_Instruction(firstOpcodeByte);
-        }
+        return switch (firstOpcodeByte & 0xff) {
+            case 0xCB -> execute_CB_Instruction();
+            case 0xDD -> execute_DD_Instruction();
+            case 0xED -> execute_ED_Instruction();
+            case 0xFD -> execute_FD_Instruction();
+            default -> execute_SingleByte_Instruction(firstOpcodeByte);
+        };
     }
 
     private int execute_CB_Instruction() {
@@ -116,8 +114,9 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         return SingleByte_InstructionExecutors[firstOpcodeByte & 0xff].get();
     }
 
-    private EventHandler<InstructionFetchFinishedEvent> instructionFetchFinished = new EventHandler<>();
+    private final EventHandler<InstructionFetchFinishedEvent> instructionFetchFinished = new EventHandler<>();
 
+    @Override
     public EventHandler<InstructionFetchFinishedEvent> instructionFetchFinished() {
         return instructionFetchFinished;
     }
@@ -125,7 +124,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 //#region Auxiliary methods
 
     /** TODO for performance, not thread safe */
-    private InstructionFetchFinishedEvent instructionFetchFinishedEvent = new InstructionFetchFinishedEvent(this);
+    private final InstructionFetchFinishedEvent instructionFetchFinishedEvent = new InstructionFetchFinishedEvent(this);
 
     private void fetchFinished(boolean isRet/*= false*/, boolean isHalt/*= false*/, boolean isLdSp/*= false*/, boolean isEiOrDi/*= false*/) {
         instructionFetchFinishedEvent.setRetInstruction(isRet);
@@ -204,6 +203,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
     private Supplier<Byte>[] CB_InstructionExecutors;
 
+    @SuppressWarnings("unchecked")
     private void initialize_CB_InstructionsTable() {
         CB_InstructionExecutors = new Supplier[] {
                 this::RLC_B,    // 00
@@ -567,6 +567,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
     private Function<Byte, Byte>[] DDCB_InstructionExecutors;
 
+    @SuppressWarnings("unchecked")
     private void initialize_DDCB_InstructionsTable() {
         DDCB_InstructionExecutors = Arrays.<Function<Byte, Byte>>asList(
                 this::RLC_aIX_plus_n_and_load_B,    // 00
@@ -835,6 +836,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     private Supplier<Byte>[] ED_InstructionExecutors;
     private Supplier<Byte>[] ED_Block_InstructionExecutors;
 
+    @SuppressWarnings("unchecked")
     private void initialize_ED_InstructionsTable() {
         ED_InstructionExecutors = Arrays.<Supplier<Byte>>asList(
                 this::IN_B_C,    // 40
@@ -1028,6 +1030,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
     private Function<Byte, Byte>[] FDCB_InstructionExecutors;
 
+    @SuppressWarnings("unchecked")
     private void initialize_FDCB_InstructionsTable() {
         FDCB_InstructionExecutors = Arrays.<Function<Byte, Byte>>asList(
                 this::RLC_aIY_plus_n_and_load_B,    // 00
@@ -1295,6 +1298,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
     private Supplier<Byte>[] SingleByte_InstructionExecutors;
 
+    @SuppressWarnings("unchecked")
     private void initialize_SingleByte_InstructionsTable() {
         SingleByte_InstructionExecutors = new Supplier[] {
                 this::NOP,    // 00
