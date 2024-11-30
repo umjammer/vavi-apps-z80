@@ -16,7 +16,7 @@ public class ClockSynchronizationHelperTests {
     private ClockSynchronizerImpl sut;
     private JFixture fixture;
 
-    final int delta = 15;
+    static final int delta = 15;
 
     static final int times = 10; // TODO 1000;
 

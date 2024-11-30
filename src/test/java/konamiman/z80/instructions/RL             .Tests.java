@@ -21,6 +21,7 @@ class RL_tests extends InstructionsExecutionTestsBase {
     private byte offset;
 
     @BeforeEach
+    @Override
     protected void setup() {
         super.setup();
         offset = fixture.create(Byte.TYPE);
@@ -29,7 +30,7 @@ class RL_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("RL_Source")
     public void RL_rotates_byte_correctly(String reg, String destReg, byte opcode, Byte prefix, int bit) {
-        final var values = new byte[] {0x6, 0xC, 0x18, 0x30, 0x60, (byte) 0xC0, (byte) 0x80, 0};
+        var values = new byte[] {0x6, 0xC, 0x18, 0x30, 0x60, (byte) 0xC0, (byte) 0x80, 0};
         setupRegOrMem(reg, (byte) 0x03, offset);
 
         for (byte value : values) {

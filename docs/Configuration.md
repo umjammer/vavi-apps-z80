@@ -1,6 +1,6 @@
 ## Configuration
 
-The [Z80Processor class](../Main/Z80Processor.cs) can be configured by using a set of methods and properties that are in place for this purpose. The class constructor sets the configuration to  values that are useful in most cases, so the processor object is ready to be used as soon as it is instantiated; however in some cases it may be necessary to apply custom configuration. This section describes the available configuration members.
+The [Z80Processor class](../src/main/java/konamiman/z80/Z80Processor.java) can be configured by using a set of methods and properties that are in place for this purpose. The class constructor sets the configuration to  values that are useful in most cases, so the processor object is ready to be used as soon as it is instantiated; however in some cases it may be necessary to apply custom configuration. This section describes the available configuration members.
 
 _NOTE:_ Remember that plugging [custom dependencies](Dependencies.md) is an alternative (or complementary) way to customize the behavior of the processor class.
 

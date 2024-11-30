@@ -58,7 +58,7 @@ class Z80InstructionsExecutor_core_test extends InstructionsExecutionTestsBase {
     }
 
     @Test
-    public void Unsupported_instructions_invoke_overridable_method_ExecuteUnsopported_ED_Instruction() {
+    public void Unsupported_instructions_invoke_overridable_method_ExecuteUnsupported_ED_Instruction() {
         sut = newFakeInstructionExecutor();
 
         execute((byte) 0x3F, (byte) 0xED);
@@ -97,7 +97,7 @@ class Z80InstructionsExecutor_core_test extends InstructionsExecutionTestsBase {
     }
 
     @Test
-    public void DD_FD_not_followed_by_valid_opcode_are_trated_as_nops() {
+    public void DD_FD_not_followed_by_valid_opcode_are_treated_as_nops() {
         var fetchFinishedEventsCount = new AtomicInteger(0);
 
         sut.instructionFetchFinished().addListener(e -> fetchFinishedEventsCount.incrementAndGet());

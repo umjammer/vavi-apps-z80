@@ -16,7 +16,7 @@ class LD_r_r_tests extends InstructionsExecutionTestsBase {
     static Stream<Arguments> LD_r_r_Source() {
         var combinations = new ArrayList<Arguments>();
 
-        final var registers = new String[] {"B", "C", "D", "E", "H", "L", null, "A"};
+        var registers = new String[] {"B", "C", "D", "E", "H", "L", null, "A"};
         for (var src = 0; src <= 7; src++) {
             for (var dest = 0; dest <= 7; dest++) {
                 if (src == 6 || dest == 6) continue;

@@ -38,4 +38,4 @@ The default implementation is [ClockSynchronizer](../Main/Dependencies%20Impleme
 
 [IZ80Processor](../Main/IZ80Processor.cs) holds one instance of IZ80InstructionExecutor in the `ClockSynchronizer ` property. This property can be set to _null_, in this case no clock syncrhonization will be performed and the simulation will run at the maximum speed that the host system can provide. This is useful if you are not interested on simulating the exact speed of an existing system, but just run Z80 code as quickly as possible.
 
-_NOTE:_ Real time syncrhonization is not performed when the processor is running in single instruction execution mode. See the documentation about [the execution control methods](HowExecutionWorks.md).
+_NOTE:_ Real time synchronization is not performed when the processor is running in single instruction execution mode. See the documentation about [the execution control methods](HowExecutionWorks.md).

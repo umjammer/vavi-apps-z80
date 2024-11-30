@@ -81,7 +81,7 @@ public class NumberUtils {
     }
 
     /**
-     * Retuens a copy of the value that has a certain bit set or reset.
+     * Returns a copy of the value that has a certain bit set or reset.
      * The rightmost bit has position 0, the leftmost bit has position 7.
      *
      * @param number The original number

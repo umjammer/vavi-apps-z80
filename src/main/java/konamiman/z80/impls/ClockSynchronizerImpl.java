@@ -13,35 +13,40 @@ public class ClockSynchronizerImpl implements konamiman.z80.interfaces.ClockSync
 
     private double effectiveClockFrequencyInMHz = 2_000_000;
 
+    @Override
     public double getEffectiveClockFrequencyInMHz() {
         return effectiveClockFrequencyInMHz;
     }
 
+    @Override
     public void setEffectiveClockFrequencyInMHz(double value) {
         effectiveClockFrequencyInMHz = value;
     }
 
     private StopWatch stopWatch = new StopWatch();
 
-    private long accummulatedMicroseconds;
+    private long accumulatedMicroseconds;
 
+    @Override
     public void start() {
         stopWatch.reset();
         stopWatch.start();
     }
 
+    @Override
     public void stop() {
         stopWatch.stop();
     }
 
+    @Override
     public void tryWait(int periodLengthInCycles) {
-        accummulatedMicroseconds += (long) (periodLengthInCycles / effectiveClockFrequencyInMHz);
+        accumulatedMicroseconds += (long) (periodLengthInCycles / effectiveClockFrequencyInMHz);
 
-        var microsecondsPending = accummulatedMicroseconds - stopWatch.getElapsedMilliseconds();
+        var microsecondsPending = accumulatedMicroseconds - stopWatch.getElapsedMilliseconds();
 
         if (microsecondsPending >= MinMicrosecondsToWait) {
             try { Thread.sleep(microsecondsPending / 1000); } catch (InterruptedException ignored) {}
-            accummulatedMicroseconds = 0;
+            accumulatedMicroseconds = 0;
             stopWatch.reset();
         }
     }

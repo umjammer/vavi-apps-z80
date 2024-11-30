@@ -22,7 +22,7 @@ class SRA_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("SRA_Source")
     public void SRA_shifts_negative_byte_and_loads_register_correctly(String reg, String destReg, byte opcode, Byte prefix, int bit) {
-        final var values = new byte[] {(byte) 0xC0, (byte) 0xE0, (byte) 0xF0, (byte) 0xF8, (byte) 0xFC, (byte) 0xFE, (byte) 0xFF};
+        var values = new byte[] {(byte) 0xC0, (byte) 0xE0, (byte) 0xF0, (byte) 0xF8, (byte) 0xFC, (byte) 0xFE, (byte) 0xFF};
         setupRegOrMem(reg, (byte) 0x80, offset);
 
         for (byte value : values) {
@@ -37,7 +37,7 @@ class SRA_tests extends InstructionsExecutionTestsBase {
     @ParameterizedTest
     @MethodSource("SRA_Source")
     public void SRA_shifts_positive_byte_and_loads_register_correctly(String reg, String destReg, byte opcode, Byte prefix, int bit) {
-        final var values = new byte[] {0x20, 0x10, 0x08, 0x04, 0x02, 0x01, 0};
+        var values = new byte[] {0x20, 0x10, 0x08, 0x04, 0x02, 0x01, 0};
         setupRegOrMem(reg, (byte) 0x40, offset);
 
         for (byte value : values) {

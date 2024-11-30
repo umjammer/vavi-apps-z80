@@ -13,7 +13,6 @@ import konamiman.z80.instructions.core.Z80InstructionExecutorImpl;
 import konamiman.z80.interfaces.Z80ProcessorAgent;
 import konamiman.z80.interfaces.Z80Registers;
 import konamiman.z80.utils.Bit;
-import org.apache.tools.ant.util.CollectionUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -78,6 +77,7 @@ abstract class InstructionsExecutionTestsBase {
         return sut;
     }
 
+    @SuppressWarnings("unchecked")
     protected <T> T getReg(String name) {
         try {
             Method method = registers.getClass().getMethod("get" + name);
@@ -151,7 +151,7 @@ abstract class InstructionsExecutionTestsBase {
         }
     }
 
-    protected Object ifIndexRegister(String regName, Object value, Object else_) {
+    protected static Object ifIndexRegister(String regName, Object value, Object else_) {
         return regName.startsWith("IX") || regName.startsWith("IY") ? value : else_;
     }
 
@@ -261,7 +261,7 @@ abstract class InstructionsExecutionTestsBase {
     }
 
     protected static List<Arguments> getBitInstructionsSource(byte baseOpcode, boolean includeLoadReg/* = true*/, boolean loopSevenBits/* = false*/) {
-        final var bases = new Object[][] {
+        var bases = new Object[][] {
                 new Object[] {"A", 7},
                 new Object[] {"B", 0},
                 new Object[] {"C", 1},
@@ -397,32 +397,39 @@ abstract class InstructionsExecutionTestsBase {
             return currentInterruptMode;
         }
 
+        @Override
         public byte fetchNextOpcode() {
             return readFromMemory(registers.incPC());
         }
 
+        @Override
         public byte peekNextOpcode() {
             return readFromMemory(registers.getPC());
         }
 
+        @Override
         public byte readFromMemory(short address) {
             return memory[address & 0xffff];
         }
 
+        @Override
         public void writeToMemory(short address, byte value) {
             memory[address & 0xffff] = value;
         }
 
+        @Override
         public byte readFromPort(byte portNumber) {
             return ports[portNumber & 0xff];
         }
 
+        @Override
         public void writeToPort(byte portNumber, byte value) {
             ports[portNumber & 0xff] = value;
         }
 
         private Z80Registers registers;
 
+        @Override
         public Z80Registers getRegisters() {
             return registers;
         }
@@ -431,10 +438,12 @@ abstract class InstructionsExecutionTestsBase {
             registers = value;
         }
 
+        @Override
         public void setInterruptMode2(byte interruptMode) {
             currentInterruptMode = interruptMode;
         }
 
+        @Override
         public void stop(boolean isPause/* = false*/) {
             throw new UnsupportedOperationException();
         }

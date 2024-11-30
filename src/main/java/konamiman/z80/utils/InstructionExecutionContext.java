@@ -36,7 +36,7 @@ public class InstructionExecutionContext {
         opcodeBytes.clear();
         fetchComplete = false;
         localUserStateFromPreviousEvent = null;
-        accummulatedMemoryWaitStates = 0;
+        accumulatedMemoryWaitStates = 0;
         peekedOpcode = null;
         isEiOrDiInstruction = false;
     }
@@ -131,14 +131,14 @@ public class InstructionExecutionContext {
         localUserStateFromPreviousEvent = value;
     }
 
-    private int accummulatedMemoryWaitStates;
+    private int accumulatedMemoryWaitStates;
 
-    public int getAccummulatedMemoryWaitStates() {
-        return accummulatedMemoryWaitStates;
+    public int getAccumulatedMemoryWaitStates() {
+        return accumulatedMemoryWaitStates;
     }
 
-    public void setAccummulatedMemoryWaitStates(int value) {
-        accummulatedMemoryWaitStates = value;
+    public void setAccumulatedMemoryWaitStates(int value) {
+        accumulatedMemoryWaitStates = value;
     }
 
     private Byte peekedOpcode;

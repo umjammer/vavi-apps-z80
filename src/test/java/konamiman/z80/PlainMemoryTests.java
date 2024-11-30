@@ -197,7 +197,7 @@ public class PlainMemoryTests {
     }
 
     @Test
-    public void Can_get_contents_with_lenth_zero_and_empty_array_is_returned() {
+    public void Can_get_contents_with_length_zero_and_empty_array_is_returned() {
         var address = Random(0, memorySize - 1);
         var actual = sut.getContents(address, 0);
 

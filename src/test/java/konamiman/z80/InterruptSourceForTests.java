@@ -11,19 +11,19 @@ import dotnet4j.util.compat.EventHandler;
 public class InterruptSourceForTests implements Z80InterruptSource {
 
     public void fireNmi() {
-        if (nmiInterruptPulse != null)
-            nmiInterruptPulse.fireEvent(new EventObject(this));
-        else
-            Debug.println("nmiInterruptPulse is null");
+        nmiInterruptPulse.fireEvent(new EventObject(this));
     }
 
-    private EventHandler<EventObject> nmiInterruptPulse = new EventHandler<>();
+    private final EventHandler<EventObject> nmiInterruptPulse = new EventHandler<>();
+
+    @Override
     public /*event*/ EventHandler<EventObject> nmiInterruptPulse() {
         return nmiInterruptPulse;
     }
 
     private boolean intLineIsActive;
 
+    @Override
     public boolean isIntLineIsActive() {
         return intLineIsActive;
     }
@@ -34,6 +34,7 @@ public class InterruptSourceForTests implements Z80InterruptSource {
 
     private Byte valueOnDataBus;
 
+    @Override
     public Optional<Byte> getValueOnDataBus() {
         return valueOnDataBus != null ? Optional.of(valueOnDataBus) : Optional.empty();
     }

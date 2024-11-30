@@ -24,6 +24,7 @@ public class PlainMemory implements Memory {
 
     private int size;
 
+    @Override
     public int getSize() {
         return size;
     }
@@ -31,6 +32,7 @@ public class PlainMemory implements Memory {
     /**
      * @param address should be positive value
      */
+    @Override
     public byte get(int address) {
         return memory[address];
     }
@@ -38,10 +40,12 @@ public class PlainMemory implements Memory {
     /**
      * @param address should be positive value
      */
+    @Override
     public void set(int address, byte value) {
         memory[address] = value;
     }
 
+    @Override
     public void setContents(int startAddress, byte[] contents, int startIndex/*= 0*/, Integer length/*= null*/) {
         if (contents == null)
             throw new NullPointerException("contents");
@@ -61,6 +65,7 @@ public class PlainMemory implements Memory {
         System.arraycopy(contents, startIndex, memory, startAddress, length);
     }
 
+    @Override
     public byte[] getContents(int startAddress, int length) {
         if (startAddress >= memory.length)
             throw new IndexOutOfBoundsException("startAddress cannot go beyond memory size");

@@ -57,7 +57,7 @@ public class Z80ProcessorTests_Interrupts {
 //#region Interrupt source registration
 
     @Test
-    public void RegisterInterruptSource_and_GetRegisteredSources_are_simmetrical() {
+    public void RegisterInterruptSource_and_GetRegisteredSources_are_symmetrical() {
         sut.registerInterruptSource(interruptSource1);
         sut.registerInterruptSource(interruptSource2);
 
@@ -357,7 +357,7 @@ public class Z80ProcessorTests_Interrupts {
         assertTrue(afterMemoryReadEventFiredForPointerAddress.get(), "AfterMemoryRead not fired for pointer");
     }
 
-    private void Sut_MemoryAccess(Object sender, MemoryAccessEvent e) {
+    private static void Sut_MemoryAccess(Object sender, MemoryAccessEvent e) {
         throw new UnsupportedOperationException();
     }
 
@@ -376,7 +376,7 @@ public class Z80ProcessorTests_Interrupts {
 
         var maxPCreached = new AtomicInteger(0);
         var instructionsExecutedCount = new AtomicInteger(0);
-        var nopsExecutedcount = new AtomicInteger(0);
+        var nopsExecutedCount = new AtomicInteger(0);
 
         sut.beforeInstructionFetch().addListener(args -> {
             maxPCreached.set(Math.max(sut.getRegisters().getPC(), maxPCreached.get()));
@@ -389,14 +389,14 @@ public class Z80ProcessorTests_Interrupts {
 
         sut.beforeInstructionExecution().addListener(args -> {
             if (args.getOpcode()[0] == 0)
-                nopsExecutedcount.getAndIncrement();
+                nopsExecutedCount.getAndIncrement();
         });
 
         sut.start(null);
 
         assertTrue(sut.getIsHalted());
         assertEquals(2, maxPCreached.get());
-        assertEquals(4, nopsExecutedcount.get());
+        assertEquals(4, nopsExecutedCount.get());
     }
 
     @ParameterizedTest

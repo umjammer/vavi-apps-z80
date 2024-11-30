@@ -136,7 +136,7 @@ public class Z80ProcessorTests_MemoryAccess {
         assertTrue(eventFired.get());
     }
 
-    MemoryAccessEventType beforeReadEventType(boolean isPort) {
+    static MemoryAccessEventType beforeReadEventType(boolean isPort) {
         if (isPort)
             return MemoryAccessEventType.BeforePortRead;
         else
@@ -169,7 +169,7 @@ public class Z80ProcessorTests_MemoryAccess {
         assertEquals(value, actual);
     }
 
-    MemoryAccessEventType afterReadEventType(boolean isPort) {
+    static MemoryAccessEventType afterReadEventType(boolean isPort) {
         if (isPort)
             return MemoryAccessEventType.AfterPortRead;
         else
@@ -428,7 +428,7 @@ public class Z80ProcessorTests_MemoryAccess {
         assertTrue(eventFired.get());
     }
 
-    MemoryAccessEventType BeforeWriteEventType(boolean isPort) {
+    static MemoryAccessEventType BeforeWriteEventType(boolean isPort) {
         if (isPort)
             return MemoryAccessEventType.BeforePortWrite;
         else
@@ -460,7 +460,7 @@ public class Z80ProcessorTests_MemoryAccess {
         verify(memory).set(address & 0xffff, value);
     }
 
-    MemoryAccessEventType AfterWriteEventType(boolean isPort) {
+    static MemoryAccessEventType AfterWriteEventType(boolean isPort) {
         if (isPort)
             return MemoryAccessEventType.AfterPortWrite;
         else

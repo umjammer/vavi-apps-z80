@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import konamiman.z80.events.BeforeInstructionFetchEvent;
 import konamiman.z80.Z80Processor;
 import konamiman.z80.Z80ProcessorImpl;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
@@ -21,10 +20,13 @@ import static konamiman.z80.utils.NumberUtils.toByteArray;
 
 /**
  * ZEXALL and ZEXDOC tests executor
+ * <p>
  * Usage:
+ * <pre>
  * ZexallTest - run all ZEXALL tests
  * ZexallTest zexdoc.com - run all ZEXDOC tests
  * ZexallTests zexall.com|zexdoc.com n - run all tests after skipping the first n
+ * </pre>
  */
 class Program {
 

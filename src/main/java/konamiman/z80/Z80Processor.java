@@ -111,7 +111,7 @@ public interface Z80Processor {
      * During the execution of this method, the {@link #memoryAccess()},
      * {@link #beforeInstructionExecution()} and {@link #afterInstructionExecution()}
      * events will be triggered as usual.
-     * Altough not necessary, it is possible to invoke the {@link konamiman.z80.interfaces.ExecutionStopper#stop(boolean)} method
+     * Although not necessary, it is possible to invoke the {@link konamiman.z80.interfaces.ExecutionStopper#stop(boolean)} method
      * during the {@link AfterInstructionExecutionEvent} event,
      * thus modifying the value of {@link #getStopReason()}.
      * </para>
@@ -122,7 +122,7 @@ public interface Z80Processor {
      * </para>
      *
      * @return The total amount of T states required to execute the instruction,
-     * inclusing extra wait states.
+     * including extra wait states.
      *
      * @throws UnsupportedOperationException The method is invoked from within an event handler.
      */
@@ -245,7 +245,7 @@ public interface Z80Processor {
      * Sets the access mode of a portion of the visible ports space.
      *
      * @param startPort First port that will be set
-     * @param length Length of the mports space that will be set
+     * @param length Length of the ports space that will be set
      * @param mode New memory mode
      * @throws IllegalArgumentException <c>startAddress</c> is less than 0,
      * or <c>startAddress</c> + <c>length</c> goes beyond 255.
@@ -299,7 +299,7 @@ public interface Z80Processor {
      *
      * @throws IllegalArgumentException The product of {@link #getClockSpeedFactor()}
      * by the new value gives a number that is smaller than 0.001 or greater than 100.
-     * @throws UnsupportedOperationException The procesor is running or in single instruction execution mode.
+     * @throws UnsupportedOperationException The processor is running or in single instruction execution mode.
      */
     float getClockFrequencyInMHz(); void setClockFrequencyInMHz(float value);
 
@@ -403,7 +403,7 @@ public interface Z80Processor {
      *
      * <remarks>
      *
-     * This property can be set to _null_, in this case no clock syncrhonization will be performed
+     * This property can be set to _null_, in this case no clock synchronization will be performed
      * and the simulation will run at the maximum speed that the host system can provide.
      */
     ClockSynchronizer getClockSynchronizer(); void setClockSynchronizer(ClockSynchronizer value);

@@ -8,7 +8,7 @@ The following is the chain of operations performed by [IZ80Processor](../Main/IZ
 
 The code for `InstructionExecutor.Execute` does then the following:
 
-4. The `ProcessorAgent.FetchNextOpcode` method is invoked, if necessary, in order to retrieve additional opcde bytes for the instruction.
+4. The `ProcessorAgent.FetchNextOpcode` method is invoked, if necessary, in order to retrieve additional opcode bytes for the instruction.
 5. The `InstructionExecutor.InstructionFetchFinished` event is fired. _This causes `IZ80Processor` to fire the `BeforeInstructionExecution` event_.
 6. The instruction is processed, using the members of `ProcessorAgent` as appropriate to access registers, memory and ports. _Execution termination can be requested at this point by invoking `ProcessorAgent.Stop` (the default implementation of `IZ80InstructionExecutor` does never do this)_. 
 7. The method terminates, returning the count of T states required to execute the instruction.
