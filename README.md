@@ -1,6 +1,6 @@
 [![Release](https://jitpack.io/v/umjammer/vavi-apps-z80.svg)](https://jitpack.io/#umjammer/vavi-apps-z80)
-[![Java CI with Maven](https://github.com/umjammer/vavi-apps-z80/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-apps-z80/actions)
-[![CodeQL](https://github.com/umjammer/vavi-apps-z80/actions/workflows/codeql.yml/badge.svg)](https://github.com/umjammer/vavi-apps-z80/actions/workflows/codeql-analysis.yml)
+[![Java CI](https://github.com/umjammer/vavi-apps-z80/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-apps-z80/actions/workflows/maven.yml)
+[![CodeQL](https://github.com/umjammer/vavi-apps-z80/actions/workflows/codeql.yml/badge.svg)](https://github.com/umjammer/vavi-apps-z80/actions/workflows/codeql.yml)
 ![Java](https://img.shields.io/badge/Java-17-b07219)
 
 # vavi-apps-z80
@@ -92,5 +92,5 @@ The following resources have been used to develop this project:
 
 ## TODO
 
- * too slow, x100 slower compare to [my z80](https://github.com/umjammer/vavi-apps-emu88/blob/master/src/main/java/vavi/apps/em88/Z80.java)
+ * too slow, [x100 slower](https://gist.github.com/umjammer/ea319aaa7b1ecf10a19b3ade2fd7187b) compare to [my z80](https://github.com/umjammer/vavi-apps-emu88/blob/master/src/main/java/vavi/apps/em88/Z80.java)
  * unit tests have random fixture problems, if it would be failed, rerun.
