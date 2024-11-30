@@ -1,9 +1,10 @@
 package konamiman.z80.instructions.core;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 import konamiman.z80.events.InstructionFetchFinishedEvent;
 import konamiman.z80.interfaces.Z80InstructionExecutor;
@@ -11,8 +12,8 @@ import konamiman.z80.interfaces.Z80ProcessorAgent;
 import konamiman.z80.interfaces.Z80Registers;
 import konamiman.z80.utils.Bit;
 import dotnet4j.util.compat.EventHandler;
-import vavi.util.Debug;
 
+import static java.lang.System.getLogger;
 import static konamiman.z80.utils.NumberUtils.add;
 import static konamiman.z80.utils.NumberUtils.addAsInt;
 import static konamiman.z80.utils.NumberUtils.between;
@@ -36,6 +37,8 @@ import static konamiman.z80.utils.NumberUtils.withBit;
  * Default implementation of {@link Z80InstructionExecutor}
  */
 public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
+
+    private static final Logger logger = getLogger(Z80InstructionExecutorImpl.class.getName());
 
     private Z80Registers registers;
 
@@ -557,7 +560,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
             case (byte) 0xE9 -> JP_aIX();
             case (byte) 0xF9 -> LD_SP_IX();
             // passed 'zexall' test, but if you want to emulate more precisely, pop 'r' register also like 'pc'.
-            default -> { Debug.printf(Level.FINE, "DD %02x", o); registers.decPC(); yield NOP(); }
+            default -> { logger.log(Level.DEBUG, "DD %02x", o); registers.decPC(); yield NOP(); }
         };
     }
 
@@ -1020,7 +1023,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
             case (byte) 0xE9 -> JP_aIY();
             case (byte) 0xF9 -> LD_SP_IY();
             // passed 'zexall' test, but if you want to emulate more precisely, pop 'r' register also like 'pc'.
-            default -> { Debug.printf(Level.FINE, "FD %02x", o); registers.decPC(); yield NOP(); }
+            default -> { logger.log(Level.DEBUG, "FD %02x", o); registers.decPC(); yield NOP(); }
         };
     }
 

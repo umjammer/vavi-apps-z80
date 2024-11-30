@@ -1,5 +1,7 @@
 package konamiman.z80;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,9 +28,9 @@ import konamiman.z80.interfaces.Z80ProcessorAgent;
 import konamiman.z80.interfaces.Z80Registers;
 import konamiman.z80.utils.Bit;
 import konamiman.z80.utils.InstructionExecutionContext;
-import vavi.util.Debug;
 import dotnet4j.util.compat.EventHandler;
 
+import static java.lang.System.getLogger;
 import static konamiman.z80.utils.NumberUtils.createShort;
 import static konamiman.z80.utils.NumberUtils.getHighByte;
 import static konamiman.z80.utils.NumberUtils.getLowByte;
@@ -39,6 +41,8 @@ import static konamiman.z80.utils.NumberUtils.toByteArray;
  * The implementation of the {@link Z80Processor} interface.
  */
 public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
+
+    private static final Logger logger = getLogger(Z80ProcessorImpl.class.getName());
 
     private static final int MemorySpaceSize = 65536;
     private static final int PortSpaceSize = 256;
@@ -476,7 +480,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
     @SuppressWarnings("unchecked")
     public void registerInterruptSource(Z80InterruptSource source) {
         if (interruptSources.contains(source)) {
-            Debug.println("already contains source");
+logger.log(Level.DEBUG, "already contains source");
             return;
         }
 
