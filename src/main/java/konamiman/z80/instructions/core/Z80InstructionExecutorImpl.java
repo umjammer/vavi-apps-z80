@@ -560,7 +560,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
             case (byte) 0xE9 -> JP_aIX();
             case (byte) 0xF9 -> LD_SP_IX();
             // passed 'zexall' test, but if you want to emulate more precisely, pop 'r' register also like 'pc'.
-            default -> { logger.log(Level.DEBUG, "DD %02x", o); registers.decPC(); yield NOP(); }
+            default -> { logger.log(Level.DEBUG, "DD %02x".formatted(o)); registers.decPC(); yield NOP(); }
         };
     }
 
@@ -1023,7 +1023,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
             case (byte) 0xE9 -> JP_aIY();
             case (byte) 0xF9 -> LD_SP_IY();
             // passed 'zexall' test, but if you want to emulate more precisely, pop 'r' register also like 'pc'.
-            default -> { logger.log(Level.DEBUG, "FD %02x", o); registers.decPC(); yield NOP(); }
+            default -> { logger.log(Level.DEBUG, "FD %02x".formatted(o)); registers.decPC(); yield NOP(); }
         };
     }
 
