@@ -22,7 +22,7 @@ public class PlainMemoryTests {
     private PlainMemory sut;
     private JFixture fixture;
 
-    private Random random = new Random();
+    private final Random random = new Random();
 
     private int Random(int minValue, int maxValue)
     {

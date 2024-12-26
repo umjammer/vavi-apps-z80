@@ -512,7 +512,7 @@ public class Z80ProcessorTests_InstructionExecution {
             assertThrows(IllegalStateException.class, () -> sut.writeToMemory(address, value));
             assertThrows(IllegalStateException.class, () -> sut.writeToPort(address, value));
             assertThrows(IllegalStateException.class, () -> sut.setInterruptMode2((byte) 0));
-            var dummy = ((Z80ProcessorAgent) sut).getRegisters();
+            var dummy = sut.getRegisters();
             assertThrows(IllegalStateException.class, () -> sut.stop(false));
         });
 
@@ -522,7 +522,7 @@ public class Z80ProcessorTests_InstructionExecution {
             sut.writeToMemory(address, value);
             sut.writeToPort(address, value);
             sut.setInterruptMode2((byte) 0);
-            var dummy = ((Z80ProcessorAgent) sut).getRegisters();
+            var dummy = sut.getRegisters();
             sut.stop(false);
         });
 
@@ -864,9 +864,9 @@ public class Z80ProcessorTests_InstructionExecution {
                 return tStatesReturner.apply(firstOpcodeByte);
         }
 
-        public Map<Byte, Integer> timesEachInstructionIsExecuted = new HashMap<>();
+        public final Map<Byte, Integer> timesEachInstructionIsExecuted = new HashMap<>();
 
-        EventHandler<InstructionFetchFinishedEvent> instructionFetchFinished = new EventHandler<>();
+        final EventHandler<InstructionFetchFinishedEvent> instructionFetchFinished = new EventHandler<>();
 
         @Override
         public /*event*/ EventHandler<InstructionFetchFinishedEvent> instructionFetchFinished() {

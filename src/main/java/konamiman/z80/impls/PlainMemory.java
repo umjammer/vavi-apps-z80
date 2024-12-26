@@ -22,7 +22,7 @@ public class PlainMemory implements Memory {
         this.size = size;
     }
 
-    private int size;
+    private final int size;
 
     @Override
     public int getSize() {

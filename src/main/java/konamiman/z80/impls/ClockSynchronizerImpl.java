@@ -23,7 +23,7 @@ public class ClockSynchronizerImpl implements konamiman.z80.interfaces.ClockSync
         effectiveClockFrequencyInMHz = value;
     }
 
-    private StopWatch stopWatch = new StopWatch();
+    private final StopWatch stopWatch = new StopWatch();
 
     private long accumulatedMicroseconds;
 

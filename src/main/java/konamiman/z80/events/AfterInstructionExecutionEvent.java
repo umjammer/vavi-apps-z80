@@ -36,11 +36,15 @@ public class AfterInstructionExecutionEvent extends ProcessorEvent {
      * Contains the instance of {@link ExecutionStopper} that allows the event consumer
      * to ask termination of the processor execution.
      */
-    private ExecutionStopper executionStopper; public ExecutionStopper getExecutionStopper() { return executionStopper; }
+    private final ExecutionStopper executionStopper;
+
+    public ExecutionStopper getExecutionStopper() { return executionStopper; }
 
     /**
      * Contains the total count of T states required for the instruction execution, including
      * any extra wait states used for memory and ports access.
      */
-    private int totalTStates; public int getTotalTStates() { return totalTStates; }
+    private final int totalTStates;
+
+    public int getTotalTStates() { return totalTStates; }
 }

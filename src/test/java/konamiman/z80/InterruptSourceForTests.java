@@ -4,7 +4,6 @@ import java.util.EventObject;
 import java.util.Optional;
 
 import konamiman.z80.interfaces.Z80InterruptSource;
-import vavi.util.Debug;
 import dotnet4j.util.compat.EventHandler;
 
 
