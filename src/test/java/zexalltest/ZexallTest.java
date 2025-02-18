@@ -3,12 +3,13 @@ package zexalltest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import konamiman.z80.events.BeforeInstructionFetchEvent;
 import konamiman.z80.Z80Processor;
 import konamiman.z80.Z80ProcessorImpl;
+import konamiman.z80.events.BeforeInstructionFetchEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
@@ -28,7 +29,7 @@ import static konamiman.z80.utils.NumberUtils.toByteArray;
  * ZexallTests zexall.com|zexdoc.com n - run all tests after skipping the first n
  * </pre>
  */
-class Program {
+class ZexallTest {
 
     private static final byte DollarCode = '$';
 
@@ -43,14 +44,14 @@ class Program {
     @Test
     @EnabledIfSystemProperty(named = "vavi.test", matches = "zexall")
     void testZExeAll() throws Exception {
-        var program = Files.readAllBytes(Paths.get("src/test/resources/zexall.com"));
+        var program = Files.readAllBytes(Path.of(ZexallTest.class.getResource("/zexall.com").toURI()));
         exec(program, 0);
     }
 
     @Test
     @EnabledIfSystemProperty(named = "vavi.test", matches = "zexdoc")
     void testZExeDoc() throws Exception {
-        var program = Files.readAllBytes(Paths.get("src/test/resources/zexdoc.com"));
+        var program = Files.readAllBytes(Path.of(ZexallTest.class.getResource("/zexdoc.com").toURI()));
         exec(program, 0);
     }
 
@@ -61,10 +62,10 @@ class Program {
 
         z80.getMemory().setContents(0x100, program, 0, null);
 
-        z80.getMemory().set(6, (byte) 0xFF);
-        z80.getMemory().set(7, (byte) 0xFF);
+        z80.getMemory().set(6, (byte) 0xff);
+        z80.getMemory().set(7, (byte) 0xff);
 
-        z80.beforeInstructionFetch().addListener(Program::z80OnBeforeInstructionFetch);
+        z80.beforeInstructionFetch().addListener(ZexallTest::z80OnBeforeInstructionFetch);
 
         skipTests(z80, testsToSkip);
 
@@ -79,7 +80,7 @@ class Program {
 
     private static void skipTests(Z80Processor z80, int testsToSkipCount) {
         short loadTestsAddress = 0x120;
-        short originalAddress = 0x13A;
+        short originalAddress = 0x13a;
         short newTestAddress = add(originalAddress, testsToSkipCount * 2);
         z80.getMemory().set(loadTestsAddress, getLowByte(newTestAddress));
         z80.getMemory().set(loadTestsAddress + 1, getHighByte(newTestAddress));
