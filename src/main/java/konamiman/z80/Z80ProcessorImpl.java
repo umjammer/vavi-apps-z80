@@ -424,7 +424,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         memory = value;
     }
 
-    private MemoryAccessMode[] memoryAccessModes = new MemoryAccessMode[MemorySpaceSize];
+    private final MemoryAccessMode[] memoryAccessModes = new MemoryAccessMode[MemorySpaceSize];
 
     @Override
     public void setMemoryAccessMode(short startAddress, int length, MemoryAccessMode mode) {
@@ -448,10 +448,12 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
     }
 
     private Memory portsSpace;
+
     @Override
     public Memory getPortsSpace() {
         return portsSpace;
     }
+
     /** @throws NullPointerException value is null */
     @Override
     public void setPortsSpace(Memory value) {
@@ -460,7 +462,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         portsSpace = value;
     }
 
-    private MemoryAccessMode[] portsAccessModes = new MemoryAccessMode[PortSpaceSize];
+    private final MemoryAccessMode[] portsAccessModes = new MemoryAccessMode[PortSpaceSize];
 
     @Override
     public void setPortsSpaceAccessMode(byte startPort, int length, MemoryAccessMode mode) {
@@ -472,9 +474,10 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         return portsAccessModes[portNumber & 0xff];
     }
 
-    private List<Z80InterruptSource> interruptSources;
+    private final List<Z80InterruptSource> interruptSources;
+
     @SuppressWarnings("rawtypes")
-    private EventHandler.EventListener defaultListener = args -> setNmiInterruptPending(true);
+    private final EventHandler.EventListener defaultListener = args -> setNmiInterruptPending(true);
 
     @Override
     @SuppressWarnings("unchecked")
@@ -567,7 +570,7 @@ logger.log(Level.DEBUG, "already contains source");
     public boolean getAutoStopOnRetWithStackEmpty() { return autoStopOnRetWithStackEmpty; } @Override
     public void setAutoStopOnRetWithStackEmpty(boolean value) { autoStopOnRetWithStackEmpty = value; }
 
-    private byte[] memoryWaitStatesForM1 = new byte[MemorySpaceSize];
+    private final byte[] memoryWaitStatesForM1 = new byte[MemorySpaceSize];
 
     @Override
     public void setMemoryWaitStatesForM1(short startAddress, int length, byte waitStates) {
@@ -580,7 +583,7 @@ logger.log(Level.DEBUG, "already contains source");
         return memoryWaitStatesForM1[address & 0xffff];
     }
 
-    private byte[] memoryWaitStatesForNonM1 = new byte[MemorySpaceSize];
+    private final byte[] memoryWaitStatesForNonM1 = new byte[MemorySpaceSize];
 
     @Override
     public void setMemoryWaitStatesForNonM1(short startAddress, int length, byte waitStates) {
@@ -593,7 +596,7 @@ logger.log(Level.DEBUG, "already contains source");
         return memoryWaitStatesForNonM1[address & 0xffff];
     }
 
-    private byte[] portWaitStates = new byte[PortSpaceSize];
+    private final byte[] portWaitStates = new byte[PortSpaceSize];
 
     @Override
     public void setPortWaitStates(short startPort, int length, byte waitStates) {
@@ -663,13 +666,13 @@ logger.log(Level.DEBUG, "already contains source");
 
 //#region Events
 
-    public EventHandler<MemoryAccessEvent> memoryAccess = new EventHandler<>();
+    public final EventHandler<MemoryAccessEvent> memoryAccess = new EventHandler<>();
 
-    public EventHandler<BeforeInstructionFetchEvent> beforeInstructionFetch = new EventHandler<>();
+    public final EventHandler<BeforeInstructionFetchEvent> beforeInstructionFetch = new EventHandler<>();
 
-    public EventHandler<BeforeInstructionExecutionEvent> beforeInstructionExecution = new EventHandler<>();
+    public final EventHandler<BeforeInstructionExecutionEvent> beforeInstructionExecution = new EventHandler<>();
 
-    public EventHandler<AfterInstructionExecutionEvent> afterInstructionExecution = new EventHandler<>();
+    public final EventHandler<AfterInstructionExecutionEvent> afterInstructionExecution = new EventHandler<>();
 
 //#endregion
 

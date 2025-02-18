@@ -69,9 +69,9 @@ class SUB_SBC_CPI_CPD_CP_r_tests extends InstructionsExecutionTestsBase {
         );
     }
 
-    public static List<Arguments> SUB_SBC_A_r;
-    public static List<Arguments> CP_r;
-    public static List<Arguments> CPID_R;
+    public static final List<Arguments> SUB_SBC_A_r;
+    public static final List<Arguments> CP_r;
+    public static final List<Arguments> CPID_R;
 
     static Stream<Arguments> SUB_SBC_A_r_Source() {
         return SUB_SBC_A_r.stream();

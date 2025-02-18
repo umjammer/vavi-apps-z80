@@ -370,7 +370,7 @@ abstract class InstructionsExecutionTestsBase {
 //#region Fake classes
 
     protected static class FakeInstructionExecutor extends Z80InstructionExecutorImpl {
-        public List<Byte> unsupportedExecuted = new ArrayList<>();
+        public final List<Byte> unsupportedExecuted = new ArrayList<>();
 
         protected @Override int executeUnsupported_ED_Instruction(byte secondOpcodeByte) {
             unsupportedExecuted.add(secondOpcodeByte);
@@ -385,9 +385,9 @@ abstract class InstructionsExecutionTestsBase {
             ports = new byte[256];
         }
 
-        private byte[] memory;
+        private final byte[] memory;
 
-        private byte[] ports;
+        private final byte[] ports;
 
         private short memoryPointer;
 

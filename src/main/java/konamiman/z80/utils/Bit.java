@@ -27,7 +27,7 @@ public class Bit {
     /**
      * Gets the value of the bit, 0 or 1.
      */
-    private int value;
+    private final int value;
 
     public int intValue() {
         return value;

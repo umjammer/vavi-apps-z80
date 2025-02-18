@@ -37,12 +37,16 @@ public class MemoryAccessEvent extends ProcessorEvent {
     /**
      * Gets the type of event being processed.
      */
-    private MemoryAccessEventType eventType; public MemoryAccessEventType getEventType() { return eventType; }
+    private final MemoryAccessEventType eventType;
+
+    public MemoryAccessEventType getEventType() { return eventType; }
 
     /**
      * Gets the memory or port address being accessed.
      */
-    private short address; public short getAddress() { return address; }
+    private final short address;
+
+    public short getAddress() { return address; }
 
     /**
      * Gets or sets the value that has been read, will be written, or has been written.
