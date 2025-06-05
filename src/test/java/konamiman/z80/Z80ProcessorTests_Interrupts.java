@@ -394,7 +394,7 @@ public class Z80ProcessorTests_Interrupts {
 
         sut.start(null);
 
-        assertTrue(sut.getIsHalted());
+        assertTrue(sut.isHalted());
         assertEquals(2, maxPCreached.get());
         assertEquals(4, nopsExecutedCount.get());
     }
@@ -434,7 +434,7 @@ public class Z80ProcessorTests_Interrupts {
 
         sut.continue_();
 
-        assertFalse(sut.getIsHalted());
+        assertFalse(sut.isHalted());
         assertEquals(13, instructionsExecutedCount.get()); // 10 + extra NOP + RET on 0x66 + RET on 2
         assertEquals(StopReason.RetWithStackEmpty, sut.getStopReason());
 

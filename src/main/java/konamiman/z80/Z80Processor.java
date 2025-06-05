@@ -180,7 +180,7 @@ public interface Z80Processor {
     /**
      * Returns true when a HALT instruction is executed, returns to false when an interrupt request arrives.
      */
-    boolean getIsHalted();
+    boolean isHalted();
 
     /**
      * The current interrupt mode. It has always the value 0, 1 or 2.

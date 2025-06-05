@@ -34,7 +34,7 @@ public interface Memory {
      * goes beyond the memory size, or <c>length</c> is greater that the actual length of <c>contents</c>.
      * @throws NullPointerException contents is null
      */
-    void setContents(int startAddress, byte[] contents, int startIndex/*= 0*/, Integer length/*= null*/);
+    void setContents(int startAddress, byte[] contents, int startIndex /* = 0 */, Integer length /* = null */);
 
     /**
      * Returns the contents of a portion of the memory as a byte array.
