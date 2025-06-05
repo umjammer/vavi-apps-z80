@@ -83,6 +83,9 @@ You can try these tests yourself by running [the ZexallTest project](src/test/ja
 
 ## References
 
+* https://github.com/jsanchezv/Z80Core
+* https://github.com/codesqueak/Z80Processor
+
 ### Current Score (#0052fce)
 
  https://gist.github.com/umjammer/ea319aaa7b1ecf10a19b3ade2fd7187b
@@ -104,7 +107,7 @@ The following resources have been used to develop this project:
 
  * too slow, [x100 slower](https://gist.github.com/umjammer/ea319aaa7b1ecf10a19b3ade2fd7187b) compare to [my z80](https://github.com/umjammer/vavi-apps-emu88/blob/master/src/main/java/vavi/apps/em88/Z80.java)
  * unit tests have random fixture problems, if it would be failed, rerun.
- * git tree might be corrupted
+ * ~~git tree might be corrupted~~ fixed?
 
 ---
 
