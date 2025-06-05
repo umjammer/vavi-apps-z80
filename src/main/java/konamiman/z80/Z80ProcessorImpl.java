@@ -374,7 +374,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 
     protected boolean isHalted;
     @Override
-    public boolean getIsHalted() { return isHalted; }
+    public boolean isHalted() { return isHalted; }
 
     private byte interruptMode;
     @Override

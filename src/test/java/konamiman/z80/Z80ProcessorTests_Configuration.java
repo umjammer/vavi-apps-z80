@@ -82,7 +82,7 @@ public class Z80ProcessorTests_Configuration {
 
         assertEquals(StopReason.NeverRan, sut.getStopReason());
         assertEquals(ProcessorState.Stopped, sut.getState());
-        assertFalse(sut.getIsHalted());
+        assertFalse(sut.isHalted());
         assertNull(sut.getUserState());
     }
 
@@ -109,7 +109,7 @@ public class Z80ProcessorTests_Configuration {
 
         assertEquals(0, sut.getTStatesElapsedSinceReset());
 
-        assertFalse(sut.getIsHalted());
+        assertFalse(sut.isHalted());
     }
 
     @Test

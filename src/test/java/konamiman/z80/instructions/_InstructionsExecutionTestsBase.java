@@ -134,11 +134,11 @@ abstract class InstructionsExecutionTestsBase {
         }
     }
 
-    protected int execute(byte opcode, Byte prefix/*= null*/, byte... nextFetches) {
+    protected int execute(byte opcode, Byte prefix /* = null */, byte... nextFetches) {
         return executeAt((short) 0, opcode, prefix, nextFetches);
     }
 
-    protected int executeAt(short address, byte opcode, Byte prefix/*= null*/, byte... nextFetches) {
+    protected int executeAt(short address, byte opcode, Byte prefix /* = null */, byte... nextFetches) {
         registers.setPC(inc(address)); // Inc needed to simulate the first fetch made by the enclosing Z80Processor
         if (prefix == null) {
             setMemoryContentsAt(inc(address), nextFetches);
@@ -155,7 +155,7 @@ abstract class InstructionsExecutionTestsBase {
         return regName.startsWith("IX") || regName.startsWith("IY") ? value : else_;
     }
 
-    protected void assertNoFlagsAreModified(byte opcode, Byte prefix/*= null*/) {
+    protected void assertNoFlagsAreModified(byte opcode, Byte prefix /* = null */) {
         var value = fixture.create(Byte.TYPE);
         registers.setF(value);
         execute(opcode, prefix);
@@ -163,23 +163,23 @@ abstract class InstructionsExecutionTestsBase {
         assertEquals(value, registers.getF());
     }
 
-    protected void assertSetsFlags(byte opcode, Byte prefix/*= null*/, String... flagNames) {
+    protected void assertSetsFlags(byte opcode, Byte prefix /* = null */, String... flagNames) {
         assertSetsFlags(null, opcode, prefix, flagNames);
     }
 
-    protected void assertSetsFlags(Runnable executor, byte opcode, Byte prefix/*= null*/, String... flagNames) {
+    protected void assertSetsFlags(Runnable executor, byte opcode, Byte prefix /* = null */, String... flagNames) {
         assertSetsOrResetsFlags(opcode, Bit.ON, prefix, executor, flagNames);
     }
 
-    protected void assertResetsFlags(byte opcode, Byte prefix/*= null*/, String... flagNames) {
+    protected void assertResetsFlags(byte opcode, Byte prefix /* = null */, String... flagNames) {
         assertResetsFlags(null, opcode, prefix, flagNames);
     }
 
-    protected void assertResetsFlags(Runnable executor, byte opcode, Byte prefix/*= null*/, String... flagNames) {
+    protected void assertResetsFlags(Runnable executor, byte opcode, Byte prefix /* = null */, String... flagNames) {
         assertSetsOrResetsFlags(opcode, Bit.OFF, prefix, executor, flagNames);
     }
 
-    protected void assertSetsOrResetsFlags(byte opcode, Bit expected, Byte prefix/*= null*/, Runnable executor/*= null*/, String... flagNames) {
+    protected void assertSetsOrResetsFlags(byte opcode, Bit expected, Byte prefix /* = null */, Runnable executor /* = null */, String... flagNames) {
         if (executor == null)
             executor = () -> execute(opcode, prefix);
 
@@ -198,11 +198,11 @@ abstract class InstructionsExecutionTestsBase {
         }
     }
 
-    protected void assertDoesNotChangeFlags(byte opcode, Byte prefix/*= null*/, String... flagNames) {
+    protected void assertDoesNotChangeFlags(byte opcode, Byte prefix /* = null */, String... flagNames) {
         assertDoesNotChangeFlags(null, opcode, prefix, flagNames);
     }
 
-    protected void assertDoesNotChangeFlags(Runnable executor, byte opcode, Byte prefix/*= null*/, String... flagNames) {
+    protected void assertDoesNotChangeFlags(Runnable executor, byte opcode, Byte prefix /* = null */, String... flagNames) {
         if (executor == null)
             executor = () -> execute(opcode, prefix);
 
@@ -231,7 +231,7 @@ abstract class InstructionsExecutionTestsBase {
         return createShort(processorAgent.readFromMemory(address), processorAgent.readFromMemory(inc(address)));
     }
 
-    protected void setupRegOrMem(String reg, byte value, byte offset/* = 0*/) {
+    protected void setupRegOrMem(String reg, byte value, byte offset /* = 0 */) {
         if (reg.equals("(HL)")) {
             var address = createAddressFixture();
             processorAgent.writeToMemory(address, value);
@@ -248,7 +248,7 @@ abstract class InstructionsExecutionTestsBase {
         }
     }
 
-    protected byte valueOfRegOrMem(String reg, byte offset/* = 0*/) {
+    protected byte valueOfRegOrMem(String reg, byte offset /* = 0 */) {
         if (reg.equals("(HL)")) {
             return processorAgent.readFromMemory(registers.getHL());
         } else if (reg.startsWith(("(I"))) {
@@ -260,7 +260,7 @@ abstract class InstructionsExecutionTestsBase {
         }
     }
 
-    protected static List<Arguments> getBitInstructionsSource(byte baseOpcode, boolean includeLoadReg/* = true*/, boolean loopSevenBits/* = false*/) {
+    protected static List<Arguments> getBitInstructionsSource(byte baseOpcode, boolean includeLoadReg /* = true */, boolean loopSevenBits /* = false */) {
         var bases = new Object[][] {
                 new Object[] {"A", 7},
                 new Object[] {"B", 0},
@@ -305,7 +305,7 @@ abstract class InstructionsExecutionTestsBase {
      * @param regNamesArrayIndex OUT
      * @param prefix OUT
      */
-    protected static void modifyTestCaseCreationForIndexRegs(String regName, /* ref */int[] regNamesArrayIndex, /* out */Byte[] prefix) {
+    protected static void modifyTestCaseCreationForIndexRegs(String regName, /* ref */ int[] regNamesArrayIndex, /* out */ Byte[] prefix) {
 //            prefix = null;
 
         switch (regName) {
@@ -336,7 +336,7 @@ abstract class InstructionsExecutionTestsBase {
         }
     }
 
-    protected int executeBit(byte opcode, Byte prefix/*= null*/, Byte offset/*= null*/) {
+    protected int executeBit(byte opcode, Byte prefix /* = null */, Byte offset /* = null */) {
         if (prefix == null)
             return execute(opcode, (byte) 0xCB);
         else

@@ -129,7 +129,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     /** TODO for performance, not thread safe */
     private final InstructionFetchFinishedEvent instructionFetchFinishedEvent = new InstructionFetchFinishedEvent(this);
 
-    private void fetchFinished(boolean isRet/*= false*/, boolean isHalt/*= false*/, boolean isLdSp/*= false*/, boolean isEiOrDi/*= false*/) {
+    private void fetchFinished(boolean isRet /* = false */, boolean isHalt /* = false */, boolean isLdSp /* = false */, boolean isEiOrDi /* = false */) {
         instructionFetchFinishedEvent.setRetInstruction(isRet);
         instructionFetchFinishedEvent.setHaltInstruction(isHalt);
         instructionFetchFinishedEvent.setLdSpInstruction(isLdSp);
@@ -143,8 +143,8 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
     private short fetchWord() {
         return createShort(
-            /*lowByte:*/ processorAgent.fetchNextOpcode(),
-            /*highByte:*/ processorAgent.fetchNextOpcode());
+            /* lowByte: */ processorAgent.fetchNextOpcode(),
+            /* highByte: */ processorAgent.fetchNextOpcode());
     }
 
     private void writeShortToMemory(short address, short value) {
