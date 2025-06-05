@@ -40,6 +40,10 @@ x64/
 build/
 [Bb]in/
 [Oo]bj/
+target/
+
+## Intellij Idea
+.idea/
 
 ## MSTest test Results
 
