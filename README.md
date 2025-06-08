@@ -81,6 +81,11 @@ The processor class passes [the ZEXDOC test](https://github.com/KnightOS/z80e/bl
 and [the ZEXALL test](https://github.com/KnightOS/z80e/blob/master/gpl/zexall.src) fully except for the BIT instruction.
 You can try these tests yourself by running [the ZexallTest project](src/test/java/zexalltest/Program.java).
 
+### Samples
+
+ * [console](src/test/java/zexalltest/ConsoleTest.java)
+ * [CP/M](src/test/java/zexalltest/CPMLoadTest.java)
+
 ## References
 
 * https://github.com/jsanchezv/Z80Core
@@ -106,8 +111,8 @@ The following resources have been used to develop this project:
 ## TODO
 
  * too slow, [x100 slower](https://gist.github.com/umjammer/ea319aaa7b1ecf10a19b3ade2fd7187b) compare to [my z80](https://github.com/umjammer/vavi-apps-emu88/blob/master/src/main/java/vavi/apps/em88/Z80.java)
- * unit tests have random fixture problems, if it would be failed, rerun.
- * ~~git tree might be corrupted~~ fixed?
+ * unit tests have [random fixture problems](https://github.com/umjammer/vavi-apps-z80/pull/9#issuecomment-2947711686), if it would be failed, rerun.
+ * ~~git tree might be corrupted~~ fixed
 
 ---
 
