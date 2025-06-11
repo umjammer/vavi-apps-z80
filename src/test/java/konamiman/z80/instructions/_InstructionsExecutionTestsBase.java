@@ -444,7 +444,7 @@ abstract class InstructionsExecutionTestsBase {
         }
 
         @Override
-        public void stop(boolean isPause/* = false*/) {
+        public void stop(boolean isPause /* = false */) {
             throw new UnsupportedOperationException();
         }
     }

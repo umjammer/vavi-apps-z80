@@ -4,8 +4,10 @@ import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EventObject;
 import java.util.List;
 
+import konamiman.z80.enums.InterruptType;
 import konamiman.z80.enums.MemoryAccessEventType;
 import konamiman.z80.enums.MemoryAccessMode;
 import konamiman.z80.enums.ProcessorState;
@@ -53,6 +55,9 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
     private static final short NmiServiceRoutine = 0x66;
     private static final byte NOP_opcode = 0x00;
     private static final byte RST38h_opcode = (byte) 0xff;
+    private static final byte RETI_RETN_prefix = (byte) 0xed;
+    private static final byte RETI_opcode = 0x4D;
+    private static final byte RETN_opcode = 0x45;
 
     public Z80ProcessorImpl() {
         clockSynchronizer = new ClockSynchronizerImpl();
@@ -86,7 +91,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 //#region Processor control
 
     @Override
-    public void start(Object userState/*= null*/) {
+    public void start(Object userState /* = null */) {
         if (userState != null)
             this.userState = userState;
 
@@ -101,7 +106,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         instructionExecutionLoop(false);
     }
 
-    private int instructionExecutionLoop(boolean isSingleInstruction/*= false*/) {
+    private int instructionExecutionLoop(boolean isSingleInstruction /* = false */) {
         try {
             return instructionExecutionLoopCore(isSingleInstruction);
         } catch (Exception e) {
@@ -186,6 +191,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
             isHalted = false;
             registers.setIFF1(Bit.of(0));
             executeCall(NmiServiceRoutine);
+            triggerInterruptEvent(InterruptType.NonMaskable);
             return 11;
         }
 
@@ -203,10 +209,12 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         switch (interruptMode) {
         case 0:
             var opcode = activeIntSource.getValueOnDataBus().orElse((byte) 0xFF);
+            triggerInterruptEvent(InterruptType.Maskable);
             instructionExecutor.execute(opcode);
             return 13;
         case 1:
             instructionExecutor.execute(RST38h_opcode);
+            triggerInterruptEvent(InterruptType.Maskable);
             return 13;
         case 2:
             var pointerAddress = createShort(
@@ -216,6 +224,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
                     /* lowByte: */ readFromMemoryInternal(pointerAddress),
                     /* highByte: */ readFromMemoryInternal((short) (pointerAddress + 1)));
             executeCall(callAddress);
+            triggerInterruptEvent(InterruptType.Maskable);
             return 19;
         }
 
@@ -234,6 +243,21 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         registers.setPC(address);
     }
 
+    private void triggerInterruptEvent(InterruptType interruptType) {
+        switch (interruptType) {
+            case Maskable:
+                maskableInterruptServicingStart.fireEvent(new EventObject(this));
+                break;
+
+            case NonMaskable:
+                nonMaskableInterruptServicingStart.fireEvent(new EventObject(this));
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unknown interrupt type: " + interruptType);
+        }
+    }
+
     @Override
     public void executeRet() {
         var sp = registers.getSP();
@@ -248,8 +272,8 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
             return;
 
         throw new InstructionFetchFinishedEventNotFiredException(
-                /*instructionAddress:*/ (short) (registers.getPC() - executionContext.getOpcodeBytes().size()),
-                /*fetchedBytes:*/ toByteArray(executionContext.getOpcodeBytes()), null, null);
+                /* instructionAddress: */ (short) (registers.getPC() - executionContext.getOpcodeBytes().size()),
+                /* fetchedBytes: */ toByteArray(executionContext.getOpcodeBytes()), null, null);
     }
 
     private void checkAutoStopForHaltOnDi() {
@@ -276,11 +300,23 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
     }
 
     void fireAfterInstructionExecutionEvent(int tStates) {
+        var opcodeBytes = toByteArray(executionContext.getOpcodeBytes());
+
         afterInstructionExecution.fireEvent(new AfterInstructionExecutionEvent(
-                this, toByteArray(executionContext.getOpcodeBytes()),
+                this,
+                opcodeBytes,
                 /* stopper: */ this,
                 /* localUserState: */ executionContext.getLocalUserStateFromPreviousEvent(),
                 /* tStates: */ tStates));
+
+        if (opcodeBytes[0] == RETI_RETN_prefix) {
+            opcodeBytes[1] &= (byte) 0xcf; // To account for mirrored variants
+            if (opcodeBytes[1] == RETI_opcode) {
+                afterRetiInstructionExecution.fireEvent(new EventObject(this));
+            } else if (opcodeBytes[1] == RETN_opcode) {
+                afterRetnInstructionExecution.fireEvent(new EventObject(this));
+            }
+        }
     }
 
     void instructionExecutorInstructionFetchFinished(InstructionFetchFinishedEvent e) {
@@ -314,11 +350,23 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
     }
 
     BeforeInstructionExecutionEvent fireBeforeInstructionExecutionEvent() {
+        var opcodeBytes = toByteArray(executionContext.getOpcodeBytes());
+
         var eventArgs = new BeforeInstructionExecutionEvent(
-                this, toByteArray(executionContext.getOpcodeBytes()),
+                this,
+                opcodeBytes,
                 executionContext.getLocalUserStateFromPreviousEvent());
 
         beforeInstructionExecution.fireEvent(eventArgs);
+
+        if (opcodeBytes[0] == RETI_RETN_prefix) {
+            opcodeBytes[1] &= (byte) 0xcf; // To account for mirrored variants
+            if (opcodeBytes[1] == RETI_opcode) {
+                beforeRetiInstructionExecution.fireEvent(new EventObject(this));
+            } else if (opcodeBytes[1] == RETN_opcode) {
+                beforeRetnInstructionExecution.fireEvent(new EventObject(this));
+            }
+        }
 
         return eventArgs;
     }
@@ -661,6 +709,36 @@ logger.log(Level.DEBUG, "already contains source");
         return afterInstructionExecution;
     }
 
+    @Override
+    public EventHandler<EventObject> maskableInterruptServicingStart() {
+        return maskableInterruptServicingStart;
+    }
+
+    @Override
+    public EventHandler<EventObject> nonMaskableInterruptServicingStart() {
+        return nonMaskableInterruptServicingStart;
+    }
+
+    @Override
+    public EventHandler<EventObject> beforeRetiInstructionExecution() {
+        return beforeRetiInstructionExecution;
+    }
+
+    @Override
+    public EventHandler<EventObject> afterRetiInstructionExecution() {
+        return afterRetiInstructionExecution;
+    }
+
+    @Override
+    public EventHandler<EventObject> beforeRetnInstructionExecution() {
+        return beforeRetnInstructionExecution;
+    }
+
+    @Override
+    public EventHandler<EventObject> afterRetnInstructionExecution() {
+        return afterRetnInstructionExecution;
+    }
+
 //#endregion
 
 //#region Events
@@ -668,6 +746,18 @@ logger.log(Level.DEBUG, "already contains source");
     private final EventHandler<MemoryAccessEvent> memoryAccess = new EventHandler<>();
 
     private final EventHandler<BeforeInstructionFetchEvent> beforeInstructionFetch = new EventHandler<>();
+
+    private final EventHandler<BeforeInstructionExecutionEvent> beforeInstructionExecution = new EventHandler<>();
+
+    private final EventHandler<AfterInstructionExecutionEvent> afterInstructionExecution = new EventHandler<>();
+
+    private final EventHandler<EventObject> maskableInterruptServicingStart = new EventHandler<>();
+
+    private final EventHandler<EventObject> nonMaskableInterruptServicingStart = new EventHandler<>();
+
+    private final EventHandler<EventObject> beforeRetiInstructionExecution = new EventHandler<>();
+
+    private final EventHandler<EventObject> afterRetiInstructionExecution = new EventHandler<>();
 
     private final EventHandler<EventObject> beforeRetnInstructionExecution = new EventHandler<>();
 
@@ -791,8 +881,8 @@ logger.log(Level.DEBUG, "already contains source");
             MemoryAccessEventType eventType,
             short address,
             byte value,
-            Object localUserState/*= null*/,
-            boolean cancelMemoryAccess/*= false*/) {
+            Object localUserState /* = null */,
+            boolean cancelMemoryAccess /* = false */) {
         var eventArgs = new MemoryAccessEvent(this, eventType, address, value, localUserState, cancelMemoryAccess);
         memoryAccess.fireEvent(eventArgs);
         return eventArgs;
@@ -880,7 +970,7 @@ logger.log(Level.DEBUG, "already contains source");
     }
 
     @Override
-    public void stop(boolean isPause/*= false*/) {
+    public void stop(boolean isPause /* = false */) {
         failIfNoExecutionContext();
 
         if (!executionContext.isExecutingBeforeInstructionEvent())
