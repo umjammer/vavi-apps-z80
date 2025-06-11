@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.EventObject;
 import java.util.List;
 
+import dotnet4j.util.compat.EventHandler;
 import konamiman.z80.enums.InterruptType;
 import konamiman.z80.enums.MemoryAccessEventType;
 import konamiman.z80.enums.MemoryAccessMode;
@@ -25,12 +26,14 @@ import konamiman.z80.instructions.core.Z80InstructionExecutorImpl;
 import konamiman.z80.interfaces.ClockSynchronizer;
 import konamiman.z80.interfaces.Memory;
 import konamiman.z80.interfaces.Z80InstructionExecutor;
+import konamiman.z80.interfaces.Z80InstructionExecutorExtendedPorts;
 import konamiman.z80.interfaces.Z80InterruptSource;
 import konamiman.z80.interfaces.Z80ProcessorAgent;
+import konamiman.z80.interfaces.Z80ProcessorAgentExtendedPorts;
 import konamiman.z80.interfaces.Z80Registers;
 import konamiman.z80.utils.Bit;
 import konamiman.z80.utils.InstructionExecutionContext;
-import dotnet4j.util.compat.EventHandler;
+import konamiman.z80.utils.NumberUtils;
 
 import static java.lang.System.getLogger;
 import static konamiman.z80.utils.NumberUtils.createShort;
@@ -42,12 +45,12 @@ import static konamiman.z80.utils.NumberUtils.toByteArray;
 /**
  * The implementation of the {@link Z80Processor} interface.
  */
-public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorInterruptEvents, Z80ProcessorAgent {
+public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorInterruptEvents, Z80ProcessorExtendedPortsSpace, Z80ProcessorAgent, Z80ProcessorAgentExtendedPorts {
 
     private static final Logger logger = getLogger(Z80ProcessorImpl.class.getName());
 
     private static final int MemorySpaceSize = 65536;
-    private static final int PortSpaceSize = 256;
+    private int portSpaceSize = 256;
 
     private static final long MaxEffectiveClockSpeed = 100;
     private static final double MinEffectiveClockSpeed = 0.001;
@@ -63,26 +66,29 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorInterruptEven
         clockSynchronizer = new ClockSynchronizerImpl();
 
         clockFrequencyInMHz = 4;
-        _ClockSpeedFactor = 1;
+        clockSpeedFactor = 1;
 
         autoStopOnDiPlusHalt = true;
         autoStopOnRetWithStackEmpty = false;
         startOfStack = (short) 0xffff;
 
+        memory = new PlainMemory(MemorySpaceSize);
+        portsSpace = new PlainMemory(portSpaceSize);
+        portsAccessModes = new MemoryAccessMode[portSpaceSize];
+        portWaitStates = new byte[portSpaceSize];
+
         setMemoryWaitStatesForM1((short) 0, MemorySpaceSize, (byte) 0);
         setMemoryWaitStatesForNonM1((short) 0, MemorySpaceSize, (byte) 0);
-        setPortWaitStates((short) 0, PortSpaceSize, (byte) 0);
-
-        memory = new PlainMemory(MemorySpaceSize);
-        portsSpace = new PlainMemory(PortSpaceSize);
+        setPortWaitStates((short) 0, portSpaceSize, (byte) 0);
 
         setMemoryAccessMode((short) 0, MemorySpaceSize, MemoryAccessMode.ReadAndWrite);
-        setPortsSpaceAccessMode((byte) 0, PortSpaceSize, MemoryAccessMode.ReadAndWrite);
+        setPortsSpaceAccessMode((byte) 0, portSpaceSize, MemoryAccessMode.ReadAndWrite);
 
         registers = new Z80RegistersImpl();
         interruptSources = new ArrayList<>();
 
         setInstructionExecutor(new Z80InstructionExecutorImpl()); // must use setter
+        setInstructionExecutorExtendedPorts((Z80InstructionExecutorExtendedPorts) instructionExecutor);
 
         stopReason = StopReason.NeverRan;
         state = ProcessorState.Stopped;
@@ -436,6 +442,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorInterruptEven
     }
 
     protected short startOfStack;
+
     @Override
     public short getStartOfStack() { return startOfStack; }
 
@@ -444,10 +451,12 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorInterruptEven
 //#region Inside and outside world
 
     private Z80Registers registers;
+
     @Override
     public Z80Registers getRegisters() {
         return registers;
     }
+
     @Override
     public void setRegisters(Z80Registers value) {
         if(value == null)
@@ -457,10 +466,12 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorInterruptEven
     }
 
     private Memory memory;
+
     @Override
     public Memory getMemory() {
         return memory;
     }
+
     @Override
     public void setMemory(Memory value) {
         if(value == null)
@@ -504,19 +515,34 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorInterruptEven
     public void setPortsSpace(Memory value) {
         if (value == null) throw new NullPointerException("PortsSpace");
 
+        if (value.getSize() < portSpaceSize) {
+logger.log(Level.DEBUG, "value.getSize(): %d, portSpaceSize: %d".formatted(value.getSize(), portSpaceSize));
+            throw new IllegalStateException("portsSpace must be set to an instance of Memory with a size of at least %d bytes when useExtendedPortsSpace is %s".formatted(portSpaceSize, useExtendedPortsSpace));
+        }
+
         portsSpace = value;
     }
 
-    private final MemoryAccessMode[] portsAccessModes = new MemoryAccessMode[PortSpaceSize];
+    private MemoryAccessMode[] portsAccessModes;
 
     @Override
     public void setPortsSpaceAccessMode(byte startPort, int length, MemoryAccessMode mode) {
-        setArrayContents(portsAccessModes, (short) (startPort & 0xff), length, mode);
+        setExtendedPortsSpaceAccessMode((short) (startPort & 0xff), length, mode);
+    }
+
+    @Override
+    public void setExtendedPortsSpaceAccessMode(short startPort, int length, MemoryAccessMode mode) {
+        setArrayContents(portsAccessModes, startPort, length, mode);
     }
 
     @Override
     public MemoryAccessMode getPortAccessMode(byte portNumber) {
-        return portsAccessModes[portNumber & 0xff];
+        return getExtendedPortAccessMode((short) (portNumber & 0xff));
+    }
+
+    @Override
+    public MemoryAccessMode getExtendedPortAccessMode(short portNumber) {
+        return portsAccessModes[portNumber & 0xffff];
     }
 
     private final List<Z80InterruptSource> interruptSources;
@@ -537,8 +563,10 @@ logger.log(Level.DEBUG, "already contains source");
     }
 
     private final Object nmiInterruptPendingSync = new Object();
+
     /** don't refer directory */
     private boolean nmiInterruptPending;
+
     private boolean isNmiInterruptPending() {
         synchronized (nmiInterruptPendingSync) {
             var value = nmiInterruptPending;
@@ -546,6 +574,7 @@ logger.log(Level.DEBUG, "already contains source");
             return value;
         }
     }
+
     public void setNmiInterruptPending(boolean value) {
         synchronized (nmiInterruptPendingSync) {
             nmiInterruptPending = value;
@@ -574,13 +603,15 @@ logger.log(Level.DEBUG, "already contains source");
     private float effectiveClockFrequency;
 
     private float clockFrequencyInMHz;
+
     @Override
     public float getClockFrequencyInMHz() {
         return clockFrequencyInMHz;
     }
+
     @Override
     public void setClockFrequencyInMHz(float value) {
-        setEffectiveClockFrequency(value, _ClockSpeedFactor);
+        setEffectiveClockFrequency(value, clockSpeedFactor);
         clockFrequencyInMHz = value;
     }
 
@@ -595,24 +626,33 @@ logger.log(Level.DEBUG, "already contains source");
             clockSynchronizer.setEffectiveClockFrequencyInMHz(effectiveClockFrequency);
     }
 
-    private float _ClockSpeedFactor;
+    private float clockSpeedFactor;
+
     @Override
-    public float getClockSpeedFactor()
-        {
-            return _ClockSpeedFactor;
-        }
+    public float getClockSpeedFactor() {
+        return clockSpeedFactor;
+    }
+
     @Override
     public void setClockSpeedFactor(float value) {
         setEffectiveClockFrequency(clockFrequencyInMHz, value);
-        _ClockSpeedFactor = value;
+        clockSpeedFactor = value;
     }
 
-    private boolean autoStopOnDiPlusHalt; @Override
-    public boolean getAutoStopOnDiPlusHalt() { return autoStopOnDiPlusHalt; } @Override
+    private boolean autoStopOnDiPlusHalt;
+
+    @Override
+    public boolean getAutoStopOnDiPlusHalt() { return autoStopOnDiPlusHalt; }
+
+    @Override
     public void setAutoStopOnDiPlusHalt(boolean value) { autoStopOnDiPlusHalt = value; }
 
-    private boolean autoStopOnRetWithStackEmpty; @Override
-    public boolean getAutoStopOnRetWithStackEmpty() { return autoStopOnRetWithStackEmpty; } @Override
+    private boolean autoStopOnRetWithStackEmpty;
+
+    @Override
+    public boolean getAutoStopOnRetWithStackEmpty() { return autoStopOnRetWithStackEmpty; }
+
+    @Override
     public void setAutoStopOnRetWithStackEmpty(boolean value) { autoStopOnRetWithStackEmpty = value; }
 
     private final byte[] memoryWaitStatesForM1 = new byte[MemorySpaceSize];
@@ -641,36 +681,62 @@ logger.log(Level.DEBUG, "already contains source");
         return memoryWaitStatesForNonM1[address & 0xffff];
     }
 
-    private final byte[] portWaitStates = new byte[PortSpaceSize];
+    private byte[] portWaitStates;
 
     @Override
     public void setPortWaitStates(short startPort, int length, byte waitStates) {
+        setExtendedPortWaitStates(startPort, length, waitStates);
+    }
+
+    @Override
+    public void setExtendedPortWaitStates(short startPort, int length, byte waitStates) {
 //        SetArrayContents(portWaitStates, startPort, length, waitStates);
         Arrays.fill(portWaitStates, startPort & 0xffff, (startPort & 0xffff) + length, waitStates);
     }
 
     @Override
     public byte getPortWaitStates(byte portNumber) {
-        return portWaitStates[portNumber & 0xff];
+        return getExtendedPortWaitStates((short) (portNumber & 0xff));
+    }
+
+    @Override
+    public byte getExtendedPortWaitStates(short portNumber) {
+        return portWaitStates[portNumber & 0xffff];
     }
 
     /** don't set directory, use setter */
     private Z80InstructionExecutor instructionExecutor;
+
     @Override
     public Z80InstructionExecutor getInstructionExecutor() {
         return instructionExecutor;
     }
+
     @Override
     public void setInstructionExecutor(Z80InstructionExecutor value) {
         if(value == null)
             throw new NullPointerException("InstructionExecutor");
 
-        if(instructionExecutor != null)
+        if (instructionExecutor != null)
             instructionExecutor.instructionFetchFinished().addListener(this::instructionExecutorInstructionFetchFinished);
 
         instructionExecutor = value;
         instructionExecutor.setProcessorAgent(this);
         instructionExecutor.instructionFetchFinished().addListener(this::instructionExecutorInstructionFetchFinished);
+    }
+
+    private Z80InstructionExecutorExtendedPorts instructionExecutorExtendedPorts;
+
+    public Z80InstructionExecutorExtendedPorts getInstructionExecutorExtendedPorts() {
+        return instructionExecutorExtendedPorts;
+    }
+
+    public void setInstructionExecutorExtendedPorts(Z80InstructionExecutorExtendedPorts value) {
+        if(value == null)
+            throw new IllegalArgumentException("InstructionExecutorExtendedPorts");
+
+        instructionExecutorExtendedPorts = value;
+        instructionExecutorExtendedPorts.setProcessorAgentExtendedPorts(this);
     }
 
     private ClockSynchronizer clockSynchronizer;
@@ -737,6 +803,51 @@ logger.log(Level.DEBUG, "already contains source");
     @Override
     public EventHandler<EventObject> afterRetnInstructionExecution() {
         return afterRetnInstructionExecution;
+    }
+
+    private boolean useExtendedPortsSpace = false;
+
+    /**
+     * Gets a value indicating whether the processor is using extended (16 bits) ports space.
+     */
+    @Override
+    public boolean getUseExtendedPortsSpace() {
+         return useExtendedPortsSpace;
+    }
+
+    /**
+     * Sets a value indicating whether the processor is using extended (16 bits) ports space.
+     *
+     * The first 256 items in the port access modes and port wait states arrays will be preserved
+     * when modifying the value of this property. When setting the value to true,
+     * ports 256 to 65535 will get read and write access mode and zero wait states.
+     */
+    @Override
+    public void setUseExtendedPortsSpace(boolean value) {
+        if (value == useExtendedPortsSpace) {
+            return;
+        }
+
+        var newPortsSpaceSize = value ? 65536 : 256;
+        if (portsSpace.getSize() < newPortsSpaceSize) {
+            throw new IllegalStateException("UseExtendedPortsSpace can be set to %s only if the ports space size is %d bytes".formatted(value, newPortsSpaceSize));
+        }
+
+        useExtendedPortsSpace = value;
+        portSpaceSize = newPortsSpaceSize;
+
+        var newPortsAccessModes = new MemoryAccessMode[portSpaceSize];
+        System.arraycopy(portsAccessModes, 0, newPortsAccessModes, 0, 256);
+        portsAccessModes = newPortsAccessModes;
+        for (int i = 0; i < portsAccessModes.length; i++)
+            if (portsAccessModes[i] == null) {
+//logger.log(Level.DEBUG, "portsAccessModes[%d] is null".formatted(i));
+                portsAccessModes[i] = MemoryAccessMode.values()[0];
+            }
+
+        var newPortWaitStates = new byte[portSpaceSize];
+        System.arraycopy(portWaitStates, 0, newPortWaitStates, 0, 256);
+        portWaitStates = newPortWaitStates;
     }
 
 //#endregion
@@ -934,31 +1045,45 @@ logger.log(Level.DEBUG, "already contains source");
 
     @Override
     public byte readFromPort(byte portNumber) {
+        return readFromPort(portNumber, (byte) 0);
+    }
+
+    @Override
+    public byte readFromPort(byte portNumberLow, byte portNumberHigh) {
         failIfNoExecutionContext();
         failIfNoInstructionFetchComplete();
+
+        short portNumber = useExtendedPortsSpace ? NumberUtils.createShort(portNumberLow, portNumberHigh) : portNumberLow;
 
         return readFromMemoryOrPort(
                 portNumber,
                 portsSpace,
-                getPortAccessMode(portNumber),
+                getExtendedPortAccessMode(portNumber),
                 MemoryAccessEventType.BeforePortRead,
                 MemoryAccessEventType.AfterPortRead,
-                getPortWaitStates(portNumber));
+                getExtendedPortWaitStates(portNumber));
     }
 
     @Override
     public void writeToPort(byte portNumber, byte value) {
+        writeToPort(portNumber, (byte) 0, value);
+    }
+
+    @Override
+    public void writeToPort(byte portNumberLow, byte portNumberHigh, byte value) {
         failIfNoExecutionContext();
         failIfNoInstructionFetchComplete();
+
+        short portNumber = useExtendedPortsSpace ? NumberUtils.createShort(portNumberLow, portNumberHigh) : portNumberLow;
 
         writeToMemoryOrPort(
                 portNumber,
                 value,
                 portsSpace,
-                getPortAccessMode(portNumber),
+                getExtendedPortAccessMode(portNumber),
                 MemoryAccessEventType.BeforePortWrite,
                 MemoryAccessEventType.AfterPortWrite,
-                getPortWaitStates(portNumber));
+                getExtendedPortWaitStates(portNumber));
     }
 
     @Override

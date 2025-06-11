@@ -11,8 +11,11 @@ import dotnet4j.util.compat.CollectionUtilities;
 import konamiman.z80.impls.Z80RegistersImpl;
 import konamiman.z80.instructions.core.Z80InstructionExecutorImpl;
 import konamiman.z80.interfaces.Z80ProcessorAgent;
+import konamiman.z80.interfaces.Z80ProcessorAgentExtendedPorts;
 import konamiman.z80.interfaces.Z80Registers;
 import konamiman.z80.utils.Bit;
+import konamiman.z80.utils.NumberUtils;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -36,6 +39,7 @@ abstract class InstructionsExecutionTestsBase {
     protected void setup() {
         sut = new Z80InstructionExecutorImpl();
         sut.setProcessorAgent(processorAgent = new FakeProcessorAgent());
+        sut.setProcessorAgentExtendedPorts(processorAgent);
         registers = processorAgent.registers;
         sut.instructionFetchFinished().addListener(e -> {
         });
@@ -47,12 +51,12 @@ abstract class InstructionsExecutionTestsBase {
 
     protected int nextFetchesAddress;
 
-    protected void setPortValue(byte portNumber, byte value) {
-        processorAgent.ports[portNumber] = value;
+    protected void setPortValue(short portNumber, byte value) {
+        processorAgent.ports[portNumber & 0xffff] = value;
     }
 
-    protected byte getPortValue(byte portNumber) {
-        return processorAgent.ports[portNumber];
+    protected byte getPortValue(short portNumber) {
+        return processorAgent.ports[portNumber & 0xffff];
     }
 
     protected void setMemoryContents(byte... opcodes) {
@@ -72,6 +76,7 @@ abstract class InstructionsExecutionTestsBase {
     protected FakeInstructionExecutor newFakeInstructionExecutor() {
         var sut = new FakeInstructionExecutor();
         sut.setProcessorAgent(processorAgent = new FakeProcessorAgent());
+        sut.setProcessorAgentExtendedPorts(processorAgent);
         registers = processorAgent.registers;
         sut.instructionFetchFinished().addListener(e -> {});
         return sut;
@@ -378,11 +383,11 @@ abstract class InstructionsExecutionTestsBase {
         }
     }
 
-    protected static class FakeProcessorAgent implements Z80ProcessorAgent {
+    protected static class FakeProcessorAgent implements Z80ProcessorAgent, Z80ProcessorAgentExtendedPorts {
         public FakeProcessorAgent() {
             registers = new Z80RegistersImpl();
             memory = new byte[65536];
-            ports = new byte[256];
+            ports = new byte[65536];
         }
 
         private final byte[] memory;
@@ -446,6 +451,16 @@ abstract class InstructionsExecutionTestsBase {
         @Override
         public void stop(boolean isPause /* = false */) {
             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public byte readFromPort(byte portNumberLow, byte portNumberHigh) {
+            return ports[NumberUtils.createShort(portNumberLow, portNumberHigh) & 0xffff];
+        }
+
+        @Override
+        public void writeToPort(byte portNumberLow, byte portNumberHigh, byte value) {
+            ports[NumberUtils.createShort(portNumberLow, portNumberHigh) & 0xffff] = value;
         }
     }
 

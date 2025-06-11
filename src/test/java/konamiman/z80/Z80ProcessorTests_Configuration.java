@@ -117,13 +117,13 @@ public class Z80ProcessorTests_Configuration {
         sut.setInstructionExecutionContextToNonNull();
 
         sut.setInterruptMode((byte) 0);
-        assertEquals(sut.getInterruptMode(), 0);
+        assertEquals(0, sut.getInterruptMode());
 
         sut.setInterruptMode((byte) 1);
-        assertEquals(sut.getInterruptMode(), 1);
+        assertEquals(1, sut.getInterruptMode());
 
         sut.setInterruptMode((byte) 2);
-        assertEquals(sut.getInterruptMode(), 2);
+        assertEquals(2, sut.getInterruptMode());
     }
 
     @Test
@@ -355,6 +355,7 @@ public class Z80ProcessorTests_Configuration {
     @Test
     public void Can_set_PortsSpace_to_non_null_value() {
         var value = mock(Memory.class);
+        when(value.getSize()).thenReturn(256);
         sut.setPortsSpace(value);
         assertEquals(value, sut.getPortsSpace());
     }
@@ -422,14 +423,12 @@ public class Z80ProcessorTests_Configuration {
         sut.setClockFrequencyInMHz(1);
         sut.setClockSpeedFactor(1);
 
-        assertThrows(IllegalArgumentException.class, () ->
-        {
+        assertThrows(IllegalArgumentException.class, () -> {
             sut.setClockFrequencyInMHz(1);
             sut.setClockSpeedFactor(101);
         });
 
-        assertThrows(IllegalArgumentException.class, () ->
-        {
+        assertThrows(IllegalArgumentException.class, () -> {
             sut.setClockSpeedFactor(1);
             sut.setClockFrequencyInMHz(101);
         });
@@ -449,16 +448,100 @@ public class Z80ProcessorTests_Configuration {
         sut.setClockFrequencyInMHz(1);
         sut.setClockSpeedFactor(1);
 
-        assertThrows(IllegalArgumentException.class, () ->
-        {
+        assertThrows(IllegalArgumentException.class, () -> {
             sut.setClockFrequencyInMHz(1);
             sut.setClockSpeedFactor(0.0009f);
         });
 
-        assertThrows(IllegalArgumentException.class, () ->
-        {
+        assertThrows(IllegalArgumentException.class, () -> {
             sut.setClockSpeedFactor(0.0009f);
             sut.setClockFrequencyInMHz(1);
         });
+    }
+
+    @Test
+    void Cannot_set_PortsSpace_to_smaller_than_256_bytes_if_UseExtendedPortsSpace_is_false() {
+        assertThrows(IllegalStateException.class, () -> { sut.setPortsSpace(new PlainMemory(255)); });
+    }
+
+    @Test
+    void Cannot_set_PortsSpace_to_smaller_than_65536_bytes_if_UseExtendedPortsSpace_is_true() {
+        sut.setPortsSpace(new PlainMemory(65536));
+        sut.setUseExtendedPortsSpace(true);
+
+        sut.setPortsSpace(new PlainMemory(65536));
+        assertThrows(IllegalStateException.class, () -> { sut.setPortsSpace(new PlainMemory(65535)); });
+    }
+
+    @Test
+    void Cannot_set_UseExtendedPortsSpace_to_true_if_ports_space_is_smaller_than_65536_bytes() {
+        sut.setPortsSpace(new PlainMemory(65535));
+        assertThrows(IllegalStateException.class, () -> { sut.setUseExtendedPortsSpace(true); });
+    }
+
+    @Test
+    void Changing_UseExtendedPortsSpace_preserves_values_of_first_256_port_access_modes() {
+        sut.setPortsSpaceAccessMode((byte) 0, 64, MemoryAccessMode.NotConnected);
+        sut.setPortsSpaceAccessMode((byte) 64, 64, MemoryAccessMode.ReadAndWrite);
+        sut.setPortsSpaceAccessMode((byte) 128, 64, MemoryAccessMode.ReadOnly);
+        sut.setPortsSpaceAccessMode((byte) 192, 64, MemoryAccessMode.WriteOnly);
+
+        sut.setPortsSpace(new PlainMemory(65536));
+        sut.setUseExtendedPortsSpace(true);
+
+        assertEquals(MemoryAccessMode.NotConnected, sut.getPortAccessMode((byte) 0));
+        assertEquals(MemoryAccessMode.NotConnected, sut.getPortAccessMode((byte) 63));
+        assertEquals(MemoryAccessMode.ReadAndWrite, sut.getPortAccessMode((byte) 64));
+        assertEquals(MemoryAccessMode.ReadAndWrite, sut.getPortAccessMode((byte) 127));
+        assertEquals(MemoryAccessMode.ReadOnly, sut.getPortAccessMode((byte) 128));
+        assertEquals(MemoryAccessMode.ReadOnly, sut.getPortAccessMode((byte) 191));
+        assertEquals(MemoryAccessMode.WriteOnly, sut.getPortAccessMode((byte) 192));
+        assertEquals(MemoryAccessMode.WriteOnly, sut.getPortAccessMode((byte) 255));
+    }
+
+    @Test
+    void Changing_UseExtendedPortsSpace_preserves_values_of_first_256_port_wait_states() {
+        var value1 = fixture.create(Byte.TYPE);
+        var value2 = fixture.create(Byte.TYPE);
+        sut.setPortWaitStates((short) 0, 128, value1);
+        sut.setPortWaitStates((short) 128, 128, value2);
+
+        sut.setPortsSpace(new PlainMemory(65536));
+        sut.setUseExtendedPortsSpace(true);
+
+        assertEquals(value1, sut.getPortWaitStates((byte) 0));
+        assertEquals(value1, sut.getPortWaitStates((byte) 127));
+        assertEquals(value2, sut.getPortWaitStates((byte) 128));
+        assertEquals(value2, sut.getPortWaitStates((byte) 255));
+    }
+
+    @Test
+    void Changing_UseExtendedPortsSpace_to_true_sets_zero_wait_states_for_ports_256_to_65535() {
+        sut.setPortsSpace(new PlainMemory(65536));
+        sut.setUseExtendedPortsSpace(true);
+
+        sut.setExtendedPortWaitStates((short) 256, 65536 - 256, (byte) 34);
+
+        sut.setUseExtendedPortsSpace(false);
+        sut.setUseExtendedPortsSpace(true);
+
+        assertEquals(0, sut.getExtendedPortWaitStates((short) 256));
+        assertEquals(0, sut.getExtendedPortWaitStates((short) 32768));
+        assertEquals(0, sut.getExtendedPortWaitStates((short) 65535));
+    }
+
+    @Test
+    void Changing_UseExtendedPortsSpace_to_true_sets_read_and_write_mode_for_ports_256_to_65535() {
+        sut.setPortsSpace(new PlainMemory(65536));
+        sut.setUseExtendedPortsSpace(true);
+
+        sut.setExtendedPortsSpaceAccessMode((short) 256, 65536 - 256, MemoryAccessMode.ReadOnly);
+
+        sut.setUseExtendedPortsSpace(false);
+        sut.setUseExtendedPortsSpace(true);
+
+        assertEquals(MemoryAccessMode.ReadAndWrite, sut.getExtendedPortAccessMode((short) 256));
+        assertEquals(MemoryAccessMode.ReadAndWrite, sut.getExtendedPortAccessMode((short) 32768));
+        assertEquals(MemoryAccessMode.ReadAndWrite, sut.getExtendedPortAccessMode((short) 65535));
     }
 }

@@ -1,5 +1,7 @@
 package konamiman.z80.instructions;
 
+import konamiman.z80.utils.NumberUtils;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,7 +18,7 @@ class IN_A_n_tests extends InstructionsExecutionTestsBase {
         var oldValue = fixture.create(Byte.TYPE);
 
         registers.setA(oldValue);
-        setPortValue(portNumber, value);
+        setPortValue(NumberUtils.createShort(portNumber, oldValue), value);
 
         execute(IN_A_n_opcode, null, portNumber);
 

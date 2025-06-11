@@ -8,7 +8,9 @@ import java.util.function.Supplier;
 
 import konamiman.z80.events.InstructionFetchFinishedEvent;
 import konamiman.z80.interfaces.Z80InstructionExecutor;
+import konamiman.z80.interfaces.Z80InstructionExecutorExtendedPorts;
 import konamiman.z80.interfaces.Z80ProcessorAgent;
+import konamiman.z80.interfaces.Z80ProcessorAgentExtendedPorts;
 import konamiman.z80.interfaces.Z80Registers;
 import konamiman.z80.utils.Bit;
 import dotnet4j.util.compat.EventHandler;
@@ -36,7 +38,7 @@ import static konamiman.z80.utils.NumberUtils.withBit;
 /**
  * Default implementation of {@link Z80InstructionExecutor}
  */
-public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
+public class Z80InstructionExecutorImpl implements Z80InstructionExecutor, Z80InstructionExecutorExtendedPorts {
 
     private static final Logger logger = getLogger(Z80InstructionExecutorImpl.class.getName());
 
@@ -45,6 +47,10 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     private Z80ProcessorAgent processorAgent;
     @Override public Z80ProcessorAgent getProcessorAgent() { return processorAgent; }
     @Override public void setProcessorAgent(Z80ProcessorAgent value) { processorAgent = value; }
+
+    private Z80ProcessorAgentExtendedPorts processorAgentExtendedPorts;
+    @Override public Z80ProcessorAgentExtendedPorts getProcessorAgentExtendedPorts() { return processorAgentExtendedPorts; }
+    @Override public void setProcessorAgentExtendedPorts(Z80ProcessorAgentExtendedPorts value) { processorAgentExtendedPorts = value; }
 
     public Z80InstructionExecutorImpl() {
         initialize_CB_InstructionsTable();
@@ -6564,7 +6570,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         var portNumber = processorAgent.fetchNextOpcode();
         fetchFinished(false, false, false, false);
 
-        registers.setA(processorAgent.readFromPort(portNumber));
+        registers.setA(processorAgentExtendedPorts.readFromPort(portNumber, registers.getA()));
 
         return 11;
     }
@@ -6579,7 +6585,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte IN_A_C() {
         fetchFinished(false, false, false, false);
 
-        var value = processorAgent.readFromPort(registers.getC());
+        var value = processorAgentExtendedPorts.readFromPort(registers.getC(), registers.getB());
         registers.setA(value);
 
         registers.setSF(getBit(value, 7));
@@ -6598,7 +6604,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte IN_B_C() {
         fetchFinished(false, false, false, false);
 
-        var value = processorAgent.readFromPort(registers.getC());
+        var value = processorAgentExtendedPorts.readFromPort(registers.getC(), registers.getB());
         registers.setB(value);
 
         registers.setSF(getBit(value, 7));
@@ -6617,7 +6623,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte IN_C_C() {
         fetchFinished(false, false, false, false);
 
-        var value = processorAgent.readFromPort(registers.getC());
+        var value = processorAgentExtendedPorts.readFromPort(registers.getC(), registers.getB());
         registers.setC(value);
 
         registers.setSF(getBit(value, 7));
@@ -6636,7 +6642,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte IN_D_C() {
         fetchFinished(false, false, false, false);
 
-        var value = processorAgent.readFromPort(registers.getC());
+        var value = processorAgentExtendedPorts.readFromPort(registers.getC(), registers.getB());
         registers.setD(value);
 
         registers.setSF(getBit(value, 7));
@@ -6655,7 +6661,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte IN_E_C() {
         fetchFinished(false, false, false, false);
 
-        var value = processorAgent.readFromPort(registers.getC());
+        var value = processorAgentExtendedPorts.readFromPort(registers.getC(), registers.getB());
         registers.setE(value);
 
         registers.setSF(getBit(value, 7));
@@ -6674,7 +6680,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte IN_H_C() {
         fetchFinished(false, false, false, false);
 
-        var value = processorAgent.readFromPort(registers.getC());
+        var value = processorAgentExtendedPorts.readFromPort(registers.getC(), registers.getB());
         registers.setH(value);
 
         registers.setSF(getBit(value, 7));
@@ -6693,7 +6699,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte IN_L_C() {
         fetchFinished(false, false, false, false);
 
-        var value = processorAgent.readFromPort(registers.getC());
+        var value = processorAgentExtendedPorts.readFromPort(registers.getC(), registers.getB());
         registers.setL(value);
 
         registers.setSF(getBit(value, 7));
@@ -6712,7 +6718,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte IN_F_C() {
         fetchFinished(false, false, false, false);
 
-        var value = processorAgent.readFromPort(registers.getC());
+        var value = processorAgentExtendedPorts.readFromPort(registers.getC(), registers.getB());
 
         registers.setSF(getBit(value, 7));
         registers.setZF(Bit.of((value == 0)));
@@ -7422,7 +7428,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var portNumber = registers.getC();
         var address = registers.getHL();
-        var value = processorAgent.readFromPort(portNumber);
+        var value = processorAgentExtendedPorts.readFromPort(portNumber, registers.getB());
         processorAgent.writeToMemory(address, value);
 
         registers.incHL();
@@ -7446,7 +7452,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var portNumber = registers.getC();
         var address = registers.getHL();
-        var value = processorAgent.readFromPort(portNumber);
+        var value = processorAgentExtendedPorts.readFromPort(portNumber, registers.getB());
         processorAgent.writeToMemory(address, value);
 
         registers.decHL();
@@ -7470,7 +7476,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var portNumber = registers.getC();
         var address = registers.getHL();
-        var value = processorAgent.readFromPort(portNumber);
+        var value = processorAgentExtendedPorts.readFromPort(portNumber, registers.getB());
         processorAgent.writeToMemory(address, value);
 
         registers.incHL();
@@ -7498,7 +7504,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
 
         var portNumber = registers.getC();
         var address = registers.getHL();
-        var value = processorAgent.readFromPort(portNumber);
+        var value = processorAgentExtendedPorts.readFromPort(portNumber, registers.getB());
         processorAgent.writeToMemory(address, value);
 
         registers.decHL();
@@ -7527,7 +7533,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         var portNumber = registers.getC();
         var address = registers.getHL();
         var value = processorAgent.readFromMemory(address);
-        processorAgent.writeToPort(portNumber, value);
+        processorAgentExtendedPorts.writeToPort(portNumber, registers.getB(), value);
 
         registers.incHL();
         var counter = registers.getB();
@@ -7551,7 +7557,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         var portNumber = registers.getC();
         var address = registers.getHL();
         var value = processorAgent.readFromMemory(address);
-        processorAgent.writeToPort(portNumber, value);
+        processorAgentExtendedPorts.writeToPort(portNumber, registers.getB(), value);
 
         registers.decHL();
         var counter = registers.getB();
@@ -7575,7 +7581,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         var portNumber = registers.getC();
         var address = registers.getHL();
         var value = processorAgent.readFromMemory(address);
-        processorAgent.writeToPort(portNumber, value);
+        processorAgentExtendedPorts.writeToPort(portNumber, registers.getB(), value);
 
         registers.incHL();
         var counter = registers.getB();
@@ -7603,7 +7609,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         var portNumber = registers.getC();
         var address = registers.getHL();
         var value = processorAgent.readFromMemory(address);
-        processorAgent.writeToPort(portNumber, value);
+        processorAgentExtendedPorts.writeToPort(portNumber, registers.getB(), value);
 
         registers.decHL();
         var counter = registers.getB();
@@ -10124,7 +10130,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte OUT_C_A() {
         fetchFinished(false, false, false, false);
 
-        processorAgent.writeToPort(registers.getC(), registers.getA());
+        processorAgentExtendedPorts.writeToPort(registers.getC(), registers.getB(), registers.getA());
 
         return 12;
     }
@@ -10135,7 +10141,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte OUT_C_B() {
         fetchFinished(false, false, false, false);
 
-        processorAgent.writeToPort(registers.getC(), registers.getB());
+        processorAgentExtendedPorts.writeToPort(registers.getC(), registers.getB(), registers.getB());
 
         return 12;
     }
@@ -10146,7 +10152,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte OUT_C_C() {
         fetchFinished(false, false, false, false);
 
-        processorAgent.writeToPort(registers.getC(), registers.getC());
+        processorAgentExtendedPorts.writeToPort(registers.getC(), registers.getB(), registers.getC());
 
         return 12;
     }
@@ -10157,7 +10163,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte OUT_C_D() {
         fetchFinished(false, false, false, false);
 
-        processorAgent.writeToPort(registers.getC(), registers.getD());
+        processorAgentExtendedPorts.writeToPort(registers.getC(), registers.getB(), registers.getD());
 
         return 12;
     }
@@ -10168,7 +10174,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte OUT_C_E() {
         fetchFinished(false, false, false, false);
 
-        processorAgent.writeToPort(registers.getC(), registers.getE());
+        processorAgentExtendedPorts.writeToPort(registers.getC(), registers.getB(), registers.getE());
 
         return 12;
     }
@@ -10179,7 +10185,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte OUT_C_H() {
         fetchFinished(false, false, false, false);
 
-        processorAgent.writeToPort(registers.getC(), registers.getH());
+        processorAgentExtendedPorts.writeToPort(registers.getC(), registers.getB(), registers.getH());
 
         return 12;
     }
@@ -10190,7 +10196,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte OUT_C_L() {
         fetchFinished(false, false, false, false);
 
-        processorAgent.writeToPort(registers.getC(), registers.getL());
+        processorAgentExtendedPorts.writeToPort(registers.getC(), registers.getB(), registers.getL());
 
         return 12;
     }
@@ -10201,7 +10207,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
     byte OUT_C_0() {
         fetchFinished(false, false, false, false);
 
-        processorAgent.writeToPort(registers.getC(), (byte) 0);
+        processorAgentExtendedPorts.writeToPort(registers.getC(), registers.getB(), (byte) 0);
 
         return 12;
     }
@@ -10217,7 +10223,7 @@ public class Z80InstructionExecutorImpl implements Z80InstructionExecutor {
         var portNumber = processorAgent.fetchNextOpcode();
         fetchFinished(false, false, false, false);
 
-        processorAgent.writeToPort(portNumber, registers.getA());
+        processorAgentExtendedPorts.writeToPort(portNumber, registers.getA(), registers.getA());
 
         return 11;
     }
