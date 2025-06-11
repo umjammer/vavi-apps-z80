@@ -42,7 +42,7 @@ import static konamiman.z80.utils.NumberUtils.toByteArray;
 /**
  * The implementation of the {@link Z80Processor} interface.
  */
-public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
+public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorInterruptEvents, Z80ProcessorAgent {
 
     private static final Logger logger = getLogger(Z80ProcessorImpl.class.getName());
 
