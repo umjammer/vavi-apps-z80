@@ -125,7 +125,7 @@ class LDI_tests extends InstructionsExecutionTestsBase {
     @MethodSource({"LDI_Source", "LDD_Source", "LDIR_Source", "LDDR_Source"})
     public void LDI_LDD_LDIR_LDDR_set_Flag3_from_bit_3_of_value_plus_A_and_Flag5_from_bit_1(String instr, byte opcode) {
         var value = fixture.create(Byte.TYPE);
-        var srcAddress = fixture.create(Short.TYPE);
+        var srcAddress = createAddressFixture((short) 1);
 
         for (int i = 0; i < 256; i++) {
             var valueOfA = (byte) i;
@@ -136,8 +136,8 @@ class LDI_tests extends InstructionsExecutionTestsBase {
             execute(opcode, prefix);
 
             var valuePlusA = getLowByte(add(value, valueOfA));
-            assertEquals(getBit(valuePlusA, 3), registers.getFlag3());
-            assertEquals(getBit(valuePlusA, 1), registers.getFlag5());
+            assertEquals(getBit(valuePlusA, 3), registers.getFlag3(), "srcAddress: " + srcAddress);
+            assertEquals(getBit(valuePlusA, 1), registers.getFlag5(), "srcAddress: " + srcAddress);
         }
     }
 

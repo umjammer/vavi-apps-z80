@@ -41,7 +41,7 @@ class DEC_aHL_tests extends InstructionsExecutionTestsBase {
 
     private short setup(String reg, byte value, byte offset /* = 0 */) {
         // TODO got error when 1 at (IX|IY)
-        var address = createAddressFixture();
+        var address = createAddressFixture((short) 1, (short) 2);
         var actualAddress = add(address, offset);
         processorAgent.writeToMemory(actualAddress, value);
         setReg(reg, address);
@@ -59,16 +59,16 @@ class DEC_aHL_tests extends InstructionsExecutionTestsBase {
         setup(reg, (byte) 0x02, (byte) 0);
 
         execute(opcode, prefix);
-        assertEquals(0, registers.getSF().intValue());
+        assertEquals(0, registers.getSF().intValue(), reg + ": " + getReg(reg));
 
         execute(opcode, prefix);
-        assertEquals(0, registers.getSF().intValue());
+        assertEquals(0, registers.getSF().intValue(), reg + ": " + getReg(reg));
 
         execute(opcode, prefix);
-        assertEquals(1, registers.getSF().intValue());
+        assertEquals(1, registers.getSF().intValue(), reg + ": " + getReg(reg));
 
         execute(opcode, prefix);
-        assertEquals(1, registers.getSF().intValue());
+        assertEquals(1, registers.getSF().intValue(), reg + ": " + getReg(reg));
     }
 
     @ParameterizedTest
@@ -77,16 +77,16 @@ class DEC_aHL_tests extends InstructionsExecutionTestsBase {
         setup(reg, (byte) 0x03, (byte) 0);
 
         execute(opcode, prefix);
-        assertEquals(0, registers.getZF().intValue());
+        assertEquals(0, registers.getZF().intValue(), reg + ": " + getReg(reg));
 
         execute(opcode, prefix);
-        assertEquals(0, registers.getZF().intValue());
+        assertEquals(0, registers.getZF().intValue(), reg + ": " + getReg(reg));
 
         execute(opcode, prefix);
-        assertEquals(1, registers.getZF().intValue());
+        assertEquals(1, registers.getZF().intValue(), reg + ": " + getReg(reg));
 
         execute(opcode, prefix);
-        assertEquals(0, registers.getZF().intValue());
+        assertEquals(0, registers.getZF().intValue(), reg + ": " + getReg(reg));
     }
 
     @ParameterizedTest
@@ -96,13 +96,13 @@ class DEC_aHL_tests extends InstructionsExecutionTestsBase {
             setup(reg, b, (byte) 0);
 
             execute(opcode, prefix);
-            assertEquals(0, registers.getHF().intValue());
+            assertEquals(0, registers.getHF().intValue(), reg + ": " + getReg(reg));
 
             execute(opcode, prefix);
-            assertEquals(1, registers.getHF().intValue());
+            assertEquals(1, registers.getHF().intValue(), reg + ": " + getReg(reg));
 
             execute(opcode, prefix);
-            assertEquals(0, registers.getHF().intValue());
+            assertEquals(0, registers.getHF().intValue(), reg + ": " + getReg(reg));
         }
     }
 
@@ -112,13 +112,13 @@ class DEC_aHL_tests extends InstructionsExecutionTestsBase {
         setup(reg, (byte) 0x81, (byte) 0);
 
         execute(opcode, prefix);
-        assertEquals(0, registers.getPF().intValue());
+        assertEquals(0, registers.getPF().intValue(), reg + ": " + getReg(reg));
 
         execute(opcode, prefix);
-        assertEquals(1, registers.getPF().intValue());
+        assertEquals(1, registers.getPF().intValue(), reg + ": " + getReg(reg));
 
         execute(opcode, prefix);
-        assertEquals(0, registers.getPF().intValue());
+        assertEquals(0, registers.getPF().intValue(), reg + ": " + getReg(reg));
     }
 
     @ParameterizedTest
