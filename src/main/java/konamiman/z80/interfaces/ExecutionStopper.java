@@ -16,5 +16,5 @@ public interface ExecutionStopper {
      * processor classs will return {@link konamiman.z80.enums.StopReason#PauseInvoked} after the method returns.
      * If <b>false</b>, it will return {@link konamiman.z80.enums.StopReason#StopInvoked}.
      */
-    void stop(boolean isPause/*= false*/);
+    void stop(boolean isPause /* = false */);
 }

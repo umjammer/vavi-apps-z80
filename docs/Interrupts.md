@@ -1,6 +1,6 @@
 ## Interrupts
 
-[IZ80Processor](../Main/IZ80Processor.cs) supports maskable and non-maskable interrupts. In order to be able to trigger interrupts, you need to create and plug _interrupt sources_, which are classes that implement [IZ80InterruptSource](../Main/Dependencies%20Interfaces/IZ80InterruptSource.cs). Interrupt sources must be registered by using the `IZ80Processor.RegisterInterruptSource` method so that the triggered interrupts are recognized by the processor instance. More than one interrupt source can be registered at the same time.
+[IZ80Processor](../src/main/java/konamiman/z80/Z80Processor.java) supports maskable and non-maskable interrupts. In order to be able to trigger interrupts, you need to create and plug _interrupt sources_, which are classes that implement [IZ80InterruptSource](../Main/Dependencies%20Interfaces/IZ80InterruptSource.cs). Interrupt sources must be registered by using the `IZ80Processor.RegisterInterruptSource` method so that the triggered interrupts are recognized by the processor instance. More than one interrupt source can be registered at the same time.
 
 Non-maskable interrupts are triggered by the interrupt source by firing its `NmiInterruptPulse` event. This will cause the processor to handle the interrupt the standard way (maskable interrupts are disabled and a call to address 0x0066 is performed) the next time an instruction finishes its execution. Note that the `Start` and `Reset` methods cause a pending non-maskable interrupt to be lost.
 

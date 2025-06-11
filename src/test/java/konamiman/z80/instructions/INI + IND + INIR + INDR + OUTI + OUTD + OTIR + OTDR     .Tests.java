@@ -222,7 +222,7 @@ try {
         }
     }
 
-    private int executeWithPortSetup(byte opcode, byte portNumber/* = 0*/, byte portValue/* = 0*/) {
+    private int executeWithPortSetup(byte opcode, byte portNumber /* = 0 */, byte portValue /* = 0 */) {
         registers.setC(portNumber);
         setPortValue(portNumber, portValue);
         return execute(opcode, prefix);

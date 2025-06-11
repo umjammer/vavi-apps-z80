@@ -26,12 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Z80ProcessorTests_Interrupts {
 
-    private static final byte RET_opcode = (byte) 0xC9;
-    private static final byte DI_opcode = (byte) 0xF3;
-    private static final byte EI_opcode = (byte) 0xFB;
+    private static final byte RET_opcode = (byte) 0xc9;
+    private static final byte DI_opcode = (byte) 0xf3;
+    private static final byte EI_opcode = (byte) 0xfb;
     private static final byte HALT_opcode = 0x76;
     private static final byte NOP_opcode = 0x00;
-    private static final byte RST20h_opcode = (byte) 0xE7;
+    private static final byte RST20h_opcode = (byte) 0xe7;
 
     Z80ProcessorForTests sut;
     JFixture fixture;

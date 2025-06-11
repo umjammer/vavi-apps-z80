@@ -52,7 +52,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 
     private static final short NmiServiceRoutine = 0x66;
     private static final byte NOP_opcode = 0x00;
-    private static final byte RST38h_opcode = (byte) 0xFF;
+    private static final byte RST38h_opcode = (byte) 0xff;
 
     public Z80ProcessorImpl() {
         clockSynchronizer = new ClockSynchronizerImpl();
@@ -62,7 +62,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 
         autoStopOnDiPlusHalt = true;
         autoStopOnRetWithStackEmpty = false;
-        startOfStack = (short) 0xFFFF;
+        startOfStack = (short) 0xffff;
 
         setMemoryWaitStatesForM1((short) 0, MemorySpaceSize, (byte) 0);
         setMemoryWaitStatesForNonM1((short) 0, MemorySpaceSize, (byte) 0);
@@ -210,11 +210,11 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
             return 13;
         case 2:
             var pointerAddress = createShort(
-                    /*lowByte:*/ activeIntSource.getValueOnDataBus().orElse((byte) 0xFF),
-                    /*highByte:*/ registers.getI());
+                    /* lowByte: */ activeIntSource.getValueOnDataBus().orElse((byte) 0xFF),
+                    /* highByte: */ registers.getI());
             var callAddress = createShort(
-                    /*lowByte:*/ readFromMemoryInternal(pointerAddress),
-                    /*highByte:*/ readFromMemoryInternal((short) (pointerAddress + 1)));
+                    /* lowByte: */ readFromMemoryInternal(pointerAddress),
+                    /* highByte: */ readFromMemoryInternal((short) (pointerAddress + 1)));
             executeCall(callAddress);
             return 19;
         }
@@ -278,9 +278,9 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
     void fireAfterInstructionExecutionEvent(int tStates) {
         afterInstructionExecution.fireEvent(new AfterInstructionExecutionEvent(
                 this, toByteArray(executionContext.getOpcodeBytes()),
-                /*stopper:*/ this,
-                /*localUserState:*/ executionContext.getLocalUserStateFromPreviousEvent(),
-                /*tStates:*/ tStates));
+                /* stopper: */ this,
+                /* localUserState: */ executionContext.getLocalUserStateFromPreviousEvent(),
+                /* tStates: */ tStates));
     }
 
     void instructionExecutorInstructionFetchFinished(InstructionFetchFinishedEvent e) {
@@ -301,15 +301,13 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
     }
 
     void fireBeforeInstructionFetchEvent() {
-        var eventArgs = new BeforeInstructionFetchEvent(this,/*stopper:*/ this);
+        var eventArgs = new BeforeInstructionFetchEvent(this, /* stopper: */ this);
 
-        if (beforeInstructionFetch != null) {
-            executionContext.setExecutingBeforeInstructionEvent(true);
-            try {
-                beforeInstructionFetch.fireEvent(eventArgs);
-            } finally {
-                executionContext.setExecutingBeforeInstructionEvent(false);
-            }
+        executionContext.setExecutingBeforeInstructionEvent(true);
+        try {
+            beforeInstructionFetch.fireEvent(eventArgs);
+        } finally {
+            executionContext.setExecutingBeforeInstructionEvent(false);
         }
 
         executionContext.setLocalUserStateFromPreviousEvent(eventArgs.getLocalUserState());
@@ -320,8 +318,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
                 this, toByteArray(executionContext.getOpcodeBytes()),
                 executionContext.getLocalUserStateFromPreviousEvent());
 
-        if (beforeInstructionExecution != null)
-            beforeInstructionExecution.fireEvent(eventArgs);
+        beforeInstructionExecution.fireEvent(eventArgs);
 
         return eventArgs;
     }
@@ -331,8 +328,8 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
         registers.setIFF1(Bit.of(0));
         registers.setIFF2(Bit.of(0));
         registers.setPC((short) 0);
-        registers.setAF((short) 0xFFFF);
-        registers.setSP((short) 0xFFFF);
+        registers.setAF((short) 0xffff);
+        registers.setSP((short) 0xffff);
         interruptMode = 0;
 
         nmiInterruptPending = false;
@@ -344,7 +341,7 @@ public class Z80ProcessorImpl implements Z80Processor, Z80ProcessorAgent {
 
     @Override
     public int executeNextInstruction() {
-        return instructionExecutionLoop(/*isSingleInstruction:*/ true);
+        return instructionExecutionLoop(/* isSingleInstruction: */ true);
     }
 
 //#endregion
@@ -629,10 +626,12 @@ logger.log(Level.DEBUG, "already contains source");
     }
 
     private ClockSynchronizer clockSynchronizer;
+
     @Override
     public ClockSynchronizer getClockSynchronizer() {
         return clockSynchronizer;
     }
+
     @Override
     public void setClockSynchronizer(ClockSynchronizer value) {
         clockSynchronizer = value;
@@ -666,13 +665,13 @@ logger.log(Level.DEBUG, "already contains source");
 
 //#region Events
 
-    public final EventHandler<MemoryAccessEvent> memoryAccess = new EventHandler<>();
+    private final EventHandler<MemoryAccessEvent> memoryAccess = new EventHandler<>();
 
-    public final EventHandler<BeforeInstructionFetchEvent> beforeInstructionFetch = new EventHandler<>();
+    private final EventHandler<BeforeInstructionFetchEvent> beforeInstructionFetch = new EventHandler<>();
 
-    public final EventHandler<BeforeInstructionExecutionEvent> beforeInstructionExecution = new EventHandler<>();
+    private final EventHandler<EventObject> beforeRetnInstructionExecution = new EventHandler<>();
 
-    public final EventHandler<AfterInstructionExecutionEvent> afterInstructionExecution = new EventHandler<>();
+    private final EventHandler<EventObject> afterRetnInstructionExecution = new EventHandler<>();
 
 //#endregion
 

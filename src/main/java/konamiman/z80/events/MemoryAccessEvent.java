@@ -23,8 +23,8 @@ public class MemoryAccessEvent extends ProcessorEvent {
             MemoryAccessEventType eventType,
             short address,
             byte value,
-            Object localUserState/*= null*/,
-            boolean cancelMemoryAccess/*= false*/)
+            Object localUserState /* = null */,
+            boolean cancelMemoryAccess /* = false */)
     {
         super(source);
         this.eventType = eventType;

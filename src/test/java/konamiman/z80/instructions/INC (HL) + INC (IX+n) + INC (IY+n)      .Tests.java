@@ -39,7 +39,7 @@ class INC_aHL_IX_IY_plus_n_tests extends InstructionsExecutionTestsBase {
         assertMemoryContents(address, inc(oldValue));
     }
 
-    private short setup(String reg, byte value, byte offset /*= 0*/) {
+    private short setup(String reg, byte value, byte offset /* = 0 */) {
         // TODO got error when 1 at "increases_value_appropriately" (IX|IY)
         // offset is always 0, then when address is 0, actualAddress becomes 1, so excepts 0 also
         // 2 ???

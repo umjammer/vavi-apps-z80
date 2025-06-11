@@ -39,7 +39,7 @@ class DEC_aHL_tests extends InstructionsExecutionTestsBase {
         assertMemoryContents(address, dec(oldValue));
     }
 
-    private short setup(String reg, byte value, byte offset/* = 0*/) {
+    private short setup(String reg, byte value, byte offset /* = 0 */) {
         // TODO got error when 1 at (IX|IY)
         var address = createAddressFixture();
         var actualAddress = add(address, offset);
