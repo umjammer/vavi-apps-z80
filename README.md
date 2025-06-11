@@ -35,7 +35,7 @@ vavi-apps-z80 is a fork of [Z80dotNet](https://github.com/Konamiman/Z80dotNet)
       0x3C,              // INC A
       (byte) 0xC9        // RET
     };
-    z80.getMemory().setContents(0,program);
+    z80.getMemory().setContents(0, program);
 
     z80.start(null);
 
@@ -114,8 +114,10 @@ The following resources have been used to develop this project:
 ## TODO
 
  * too slow, [x100 slower](https://gist.github.com/umjammer/ea319aaa7b1ecf10a19b3ade2fd7187b) compare to [my z80](https://github.com/umjammer/vavi-apps-emu88/blob/master/src/main/java/vavi/apps/em88/Z80.java)
- * unit tests have [random fixture problems](https://github.com/umjammer/vavi-apps-z80/pull/9#issuecomment-2947711686), if it would be failed, rerun.
+ * ⚠️ unit tests have [random fixture problems](https://github.com/umjammer/vavi-apps-z80/pull/9#issuecomment-2947711686), if it would be failed, rerun.
  * ~~git tree might be corrupted~~ fixed
+ * ~~catch up with upstream update~~
+ * remove dotnet4j dependency
 
 ---
 
