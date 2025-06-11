@@ -52,7 +52,7 @@ a look at the [release notes](docs/ReleaseNotes.txt).
 1. Create an instance of [the Z80Processor class](src/main/java/konamiman/z80/Z80ProcessorImpl.cs).
 2. Optionally, plug your own implementations of one or more of the [dependencies](docs/Dependencies.md).
 3. [Configure your instance](docs/Configuration.md) as appropriate.
-4. Optionally, register one or more [interrupt sources](docs/Interrupts.md).
+4. Optionally, register one or more [interrupt sources](docs/Interrupts.md), and capture the related events if you need to.
 5. Optionally, capture [the memory access events](docs/MemoryAccessFlow.md)
    and/or [the instruction execution events](docs/InstructionExecutionFlow.md).
 6. [Start the simulated processor execution](docs/HowExecutionWorks.md) by using one of the execution control methods.
@@ -80,6 +80,9 @@ per [The undocumented Z80 documented](http://www.myquest.nl/z80undocumented/) ex
 The processor class passes [the ZEXDOC test](https://github.com/KnightOS/z80e/blob/master/gpl/zexdoc.src) fully,
 and [the ZEXALL test](https://github.com/KnightOS/z80e/blob/master/gpl/zexall.src) fully except for the BIT instruction.
 You can try these tests yourself by running [the ZexallTest project](src/test/java/zexalltest/Program.java).
+
+Z80.NET implements support for 16 bit port numbers, but it must be manually enabled.
+See [the configuration documentation](docs/Configuration.md#the-extended-ports-space) for the details.
 
 ### Samples
 
