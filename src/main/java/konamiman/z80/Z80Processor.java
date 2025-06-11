@@ -1,5 +1,6 @@
 package konamiman.z80;
 
+import java.util.EventObject;
 import java.util.List;
 
 import konamiman.z80.impls.ClockSynchronizerImpl;
@@ -79,7 +80,7 @@ public interface Z80Processor {
      * @param userState If this value is not null, it will be copied to the
      * {@link #getUserState()} property.
      */
-    void start(Object userState/*= null*/);
+    void start(Object userState /* = null */);
 
     /**
      * Sets the processor in running state without first doing a reset, thus preserving the state of all the registers.

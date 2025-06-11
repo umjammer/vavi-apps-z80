@@ -23,7 +23,7 @@ class LD_A_aa_tests extends InstructionsExecutionTestsBase {
 
         execute(LD_A_aa_opcode, null, getLowByte(address), getHighByte(address));
 
-        assertEquals(newValue, registers.getA());
+        assertEquals(newValue, registers.getA(), "address: " + address);
     }
 
     @Test

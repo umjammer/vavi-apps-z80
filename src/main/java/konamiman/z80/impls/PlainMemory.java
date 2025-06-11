@@ -46,7 +46,7 @@ public class PlainMemory implements Memory {
     }
 
     @Override
-    public void setContents(int startAddress, byte[] contents, int startIndex/*= 0*/, Integer length/*= null*/) {
+    public void setContents(int startAddress, byte[] contents, int startIndex /* = 0 */, Integer length /* = null */) {
         if (contents == null)
             throw new NullPointerException("contents");
 

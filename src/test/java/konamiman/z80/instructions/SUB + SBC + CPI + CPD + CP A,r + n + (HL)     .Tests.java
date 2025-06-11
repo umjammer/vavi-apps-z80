@@ -135,7 +135,7 @@ class SUB_SBC_CPI_CPD_CP_r_tests extends InstructionsExecutionTestsBase {
         assertEquals(oldValue, registers.getA());
     }
 
-    private void setup(String src, byte oldValue, byte valueToSubtract, int cf/* = 0*/) {
+    private void setup(String src, byte oldValue, byte valueToSubtract, int cf /* = 0 */) {
         registers.setA(oldValue);
         registers.setCF(Bit.of(cf));
 
@@ -463,7 +463,7 @@ Debug.printf("%d, %d, %d", dataAddress, runAddress, data);
         assertEquals(16, states);
     }
 
-    @Override protected int execute(byte opcode, Byte prefix/*= null*/, byte... nextFetches) {
+    @Override protected int execute(byte opcode, Byte prefix /* = null */, byte... nextFetches) {
         if (Arrays.binarySearch(cpidrOpcodes, opcode) >= 0)
             return super.execute((opcode & 0xff) == 0xFF ? (byte) 0xB9 : opcode, cpidrPrefix, nextFetches);
         else

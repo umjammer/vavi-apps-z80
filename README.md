@@ -35,7 +35,7 @@ vavi-apps-z80 is a fork of [Z80dotNet](https://github.com/Konamiman/Z80dotNet)
       0x3C,              // INC A
       (byte) 0xC9        // RET
     };
-    z80.getMemory().setContents(0,program);
+    z80.getMemory().setContents(0, program);
 
     z80.start(null);
 
@@ -52,7 +52,7 @@ a look at the [release notes](docs/ReleaseNotes.txt).
 1. Create an instance of [the Z80Processor class](src/main/java/konamiman/z80/Z80ProcessorImpl.cs).
 2. Optionally, plug your own implementations of one or more of the [dependencies](docs/Dependencies.md).
 3. [Configure your instance](docs/Configuration.md) as appropriate.
-4. Optionally, register one or more [interrupt sources](docs/Interrupts.md).
+4. Optionally, register one or more [interrupt sources](docs/Interrupts.md), and capture the related events if you need to.
 5. Optionally, capture [the memory access events](docs/MemoryAccessFlow.md)
    and/or [the instruction execution events](docs/InstructionExecutionFlow.md).
 6. [Start the simulated processor execution](docs/HowExecutionWorks.md) by using one of the execution control methods.
@@ -81,6 +81,14 @@ The processor class passes [the ZEXDOC test](https://github.com/KnightOS/z80e/bl
 and [the ZEXALL test](https://github.com/KnightOS/z80e/blob/master/gpl/zexall.src) fully except for the BIT instruction.
 You can try these tests yourself by running [the ZexallTest project](src/test/java/zexalltest/Program.java).
 
+Z80.NET implements support for 16 bit port numbers, but it must be manually enabled.
+See [the configuration documentation](docs/Configuration.md#the-extended-ports-space) for the details.
+
+### Samples
+
+ * [console](src/test/java/zexalltest/ConsoleTest.java)
+ * [CP/M](src/test/java/zexalltest/CPMLoadTest.java)
+
 ## References
 
 * https://github.com/jsanchezv/Z80Core
@@ -106,8 +114,10 @@ The following resources have been used to develop this project:
 ## TODO
 
  * too slow, [x100 slower](https://gist.github.com/umjammer/ea319aaa7b1ecf10a19b3ade2fd7187b) compare to [my z80](https://github.com/umjammer/vavi-apps-emu88/blob/master/src/main/java/vavi/apps/em88/Z80.java)
- * unit tests have random fixture problems, if it would be failed, rerun.
- * ~~git tree might be corrupted~~ fixed?
+ * ⚠️ unit tests have [random fixture problems](https://github.com/umjammer/vavi-apps-z80/pull/9#issuecomment-2947711686), if it would be failed, rerun.
+ * ~~git tree might be corrupted~~ fixed
+ * ~~catch up with upstream update~~
+ * remove dotnet4j dependency
 
 ---
 

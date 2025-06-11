@@ -391,6 +391,116 @@ public class Z80ProcessorTests_InstructionExecution {
 
 //#region Before and after instruction execution events
 
+    @ParameterizedTest
+    @ValueSource(bytes = {0x4d, 0x5d, 0x6d, 0x7d})
+    public void Fires_before_and_after_reti_instruction_execution_in_proper_order(byte opcode) {
+        var beforeExecutionEventRaised = new AtomicBoolean(false);
+        var afterExecutionEventRaised = new AtomicBoolean(false);
+        var beforeRetiExecutionEventRaised = new AtomicBoolean(false);
+        var afterRetiExecutionEventRaised = new AtomicBoolean(false);
+
+        var instructionBytes = new byte[] {(byte) 0xed, opcode};
+        sut.getMemory().setContents(0, instructionBytes, 0, null);
+
+        sut.beforeInstructionExecution().addListener(e -> {
+            assertFalse(beforeExecutionEventRaised.get());
+            assertFalse(beforeRetiExecutionEventRaised.get());
+            assertFalse(afterExecutionEventRaised.get());
+            assertFalse(afterRetiExecutionEventRaised.get());
+
+            beforeExecutionEventRaised.set(true);
+        });
+
+        sut.beforeRetiInstructionExecution().addListener(e -> {
+            assertTrue(beforeExecutionEventRaised.get());
+            assertFalse(beforeRetiExecutionEventRaised.get());
+            assertFalse(afterExecutionEventRaised.get());
+            assertFalse(afterRetiExecutionEventRaised.get());
+
+            beforeRetiExecutionEventRaised.set(true);
+        });
+
+        sut.afterInstructionExecution().addListener(e -> {
+            assertTrue(beforeExecutionEventRaised.get());
+            assertTrue(beforeRetiExecutionEventRaised.get());
+            assertFalse(afterExecutionEventRaised.get());
+            assertFalse(afterRetiExecutionEventRaised.get());
+
+            afterExecutionEventRaised.set(true);
+        });
+
+        sut.afterRetiInstructionExecution().addListener(e -> {
+            assertTrue(beforeExecutionEventRaised.get());
+            assertTrue(beforeRetiExecutionEventRaised.get());
+            assertTrue(afterExecutionEventRaised.get());
+            assertFalse(afterRetiExecutionEventRaised.get());
+
+            afterRetiExecutionEventRaised.set(true);
+        });
+
+        sut.executeNextInstruction();
+
+        assertTrue(beforeExecutionEventRaised.get());
+        assertTrue(beforeRetiExecutionEventRaised.get());
+        assertTrue(afterExecutionEventRaised.get());
+        assertTrue(afterRetiExecutionEventRaised.get());
+    }
+
+    @ParameterizedTest
+    @ValueSource(bytes = {0x45, 0x55, 0x65, 0x75})
+    public void Fires_before_and_after_retn_instruction_execution_in_proper_order(byte opcode) {
+        var beforeExecutionEventRaised = new AtomicBoolean(false);
+        var afterExecutionEventRaised = new AtomicBoolean(false);
+        var beforeRetnExecutionEventRaised = new AtomicBoolean(false);
+        var afterRetnExecutionEventRaised = new AtomicBoolean(false);
+
+        var instructionBytes = new byte[] {(byte) 0xed, opcode};
+        sut.getMemory().setContents(0, instructionBytes, 0, 2);
+
+        sut.beforeInstructionExecution().addListener(e -> {
+            assertFalse(beforeExecutionEventRaised.get());
+            assertFalse(beforeRetnExecutionEventRaised.get());
+            assertFalse(afterExecutionEventRaised.get());
+            assertFalse(afterRetnExecutionEventRaised.get());
+
+            beforeExecutionEventRaised.set(true);
+        });
+
+        sut.beforeRetnInstructionExecution().addListener(e -> {
+            assertTrue(beforeExecutionEventRaised.get());
+            assertFalse(beforeRetnExecutionEventRaised.get());
+            assertFalse(afterExecutionEventRaised.get());
+            assertFalse(afterRetnExecutionEventRaised.get());
+
+            beforeRetnExecutionEventRaised.set(true);
+        });
+
+        sut.afterInstructionExecution().addListener(e -> {
+            assertTrue(beforeExecutionEventRaised.get());
+            assertTrue(beforeRetnExecutionEventRaised.get());
+            assertFalse(afterExecutionEventRaised.get());
+            assertFalse(afterRetnExecutionEventRaised.get());
+
+            afterExecutionEventRaised.set(true);
+        });
+
+        sut.afterRetnInstructionExecution().addListener(e -> {
+            assertTrue(beforeExecutionEventRaised.get());
+            assertTrue(beforeRetnExecutionEventRaised.get());
+            assertTrue(afterExecutionEventRaised.get());
+            assertFalse(afterRetnExecutionEventRaised.get());
+
+            afterRetnExecutionEventRaised.set(true);
+        });
+
+        sut.executeNextInstruction();
+
+        assertTrue(beforeExecutionEventRaised.get());
+        assertTrue(beforeRetnExecutionEventRaised.get());
+        assertTrue(afterExecutionEventRaised.get());
+        assertTrue(afterRetnExecutionEventRaised.get());
+    }
+
     @Test
     public void Fires_before_and_after_instruction_execution_with_proper_opcodes_and_local_state() {
         var executeInvoked = new AtomicBoolean(false);
@@ -845,6 +955,9 @@ public class Z80ProcessorTests_InstructionExecution {
                 timesEachInstructionIsExecuted.put(firstOpcodeByte, timesEachInstructionIsExecuted.get(firstOpcodeByte) + 1);
             else
                 timesEachInstructionIsExecuted.put(firstOpcodeByte, 1);
+
+            if (firstOpcodeByte == (byte) 0xed)
+                ProcessorAgent.fetchNextOpcode();
 
             if (extraBeforeFetchCode != null)
                 extraBeforeFetchCode.accept(firstOpcodeByte);

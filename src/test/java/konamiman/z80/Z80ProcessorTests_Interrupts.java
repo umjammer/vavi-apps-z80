@@ -26,12 +26,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Z80ProcessorTests_Interrupts {
 
-    private static final byte RET_opcode = (byte) 0xC9;
-    private static final byte DI_opcode = (byte) 0xF3;
-    private static final byte EI_opcode = (byte) 0xFB;
+    private static final byte RET_opcode = (byte) 0xc9;
+    private static final byte DI_opcode = (byte) 0xf3;
+    private static final byte EI_opcode = (byte) 0xfb;
     private static final byte HALT_opcode = 0x76;
     private static final byte NOP_opcode = 0x00;
-    private static final byte RST20h_opcode = (byte) 0xE7;
+    private static final byte RST20h_opcode = (byte) 0xe7;
+    private static final byte IM0_opcode = 0x46;
+    private static final byte IM1_opcode = 0x56;
+    private static final byte IM2_opcode = 0x5e;
 
     Z80ProcessorForTests sut;
     JFixture fixture;
@@ -439,6 +442,53 @@ public class Z80ProcessorTests_Interrupts {
         assertEquals(StopReason.RetWithStackEmpty, sut.getStopReason());
 
         sut.unregisterAllInterruptSources();
+    }
+
+//#endregion
+
+//#region Interrupt servicing start events
+
+    @Test
+    public void Fires_NonMaskableInterruptServicingStart() {
+        sut.registerInterruptSource(interruptSource1);
+
+        sut.getMemory().set(0, NOP_opcode);
+
+        var nonMaskableInterruptServicingStartFired = new AtomicBoolean(false);
+        sut.nonMaskableInterruptServicingStart().addListener(e -> {
+            nonMaskableInterruptServicingStartFired.set(true);
+        });
+
+        interruptSource1.fireNmi();
+
+        sut.executeNextInstruction();
+
+        assertTrue(nonMaskableInterruptServicingStartFired.get());
+    }
+
+    @ParameterizedTest
+    @ValueSource(bytes = {IM0_opcode, IM1_opcode, IM2_opcode})
+    public void Fires_MaskableInterruptServicingStart(byte imOpcode) {
+        sut.registerInterruptSource(interruptSource1);
+
+        sut.getMemory().set(0, (byte) 0xed);
+        sut.getMemory().set(1, imOpcode);
+        sut.getMemory().set(2, EI_opcode);
+        sut.getMemory().set(3, NOP_opcode);
+
+        sut.executeNextInstruction(); // This sets interrupt mode
+        sut.executeNextInstruction(); // This runs EI
+
+        var maskableInterruptServicingStartFired = new AtomicBoolean(false);
+        sut.maskableInterruptServicingStart().addListener(e -> {
+            maskableInterruptServicingStartFired.set(true);
+        });
+
+        interruptSource1.setIntLineIsActive(true);
+
+        sut.executeNextInstruction();
+
+        assertTrue(maskableInterruptServicingStartFired.get());
     }
 
 //#endregion

@@ -47,8 +47,8 @@ public class InstructionFetchFinishedEventNotFiredException extends RuntimeExcep
     public InstructionFetchFinishedEventNotFiredException(
             short instructionAddress,
             byte[] fetchedBytes,
-            String message/*= null*/,
-            Exception innerException/*= null*/) {
+            String message /* = null */,
+            Exception innerException /* = null */) {
         super(message != null ? message : "Z80InstructionExecutorImpl.Execute returned without having fired the InstructionFetchFinished event.", innerException);
 
         this.instructionAddress = instructionAddress;

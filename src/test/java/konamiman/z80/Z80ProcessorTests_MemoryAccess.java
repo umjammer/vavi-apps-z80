@@ -44,6 +44,7 @@ public class Z80ProcessorTests_MemoryAccess {
         memory = mock(Memory.class);
         sut.setMemory(memory);
         ports = mock(Memory.class);
+        when(ports.getSize()).thenReturn(256);
         sut.setPortsSpace(ports);
     }
 

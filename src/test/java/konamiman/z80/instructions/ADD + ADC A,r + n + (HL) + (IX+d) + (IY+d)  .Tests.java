@@ -57,7 +57,7 @@ class ADDC_A_r_tests extends InstructionsExecutionTestsBase {
         assertEquals(add(oldValue, valueToAdd + cf), registers.getA());
     }
 
-    private void setup(String src, byte oldValue, byte valueToAdd, int cf/* = 0*/) {
+    private void setup(String src, byte oldValue, byte valueToAdd, int cf /* = 0*/) {
         registers.setA(oldValue);
         registers.setCF(Bit.of(cf));
 
