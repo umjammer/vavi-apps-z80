@@ -3,7 +3,7 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-apps-z80</artifactId>
-  <version>1.0.10</version>
+  <version>1.0.11</version>
 
   <properties>
     <target>zexall</target> <!-- or zexdoc -->
