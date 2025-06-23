@@ -1058,10 +1058,10 @@ logger.log(Level.DEBUG, "already contains source");
         return readFromMemoryOrPort(
                 portNumber,
                 portsSpace,
-                getExtendedPortAccessMode(portNumber),
+                useExtendedPortsSpace ? getExtendedPortAccessMode(portNumber) : getPortAccessMode((byte) portNumber),
                 MemoryAccessEventType.BeforePortRead,
                 MemoryAccessEventType.AfterPortRead,
-                getExtendedPortWaitStates(portNumber));
+                useExtendedPortsSpace ? getExtendedPortWaitStates(portNumber): getPortWaitStates((byte) portNumber));
     }
 
     @Override
@@ -1080,10 +1080,10 @@ logger.log(Level.DEBUG, "already contains source");
                 portNumber,
                 value,
                 portsSpace,
-                getExtendedPortAccessMode(portNumber),
+                useExtendedPortsSpace ? getExtendedPortAccessMode(portNumber) : getPortAccessMode((byte) portNumber),
                 MemoryAccessEventType.BeforePortWrite,
                 MemoryAccessEventType.AfterPortWrite,
-                getExtendedPortWaitStates(portNumber));
+                useExtendedPortsSpace ? getExtendedPortWaitStates(portNumber) : getPortWaitStates((byte) portNumber));
     }
 
     @Override
