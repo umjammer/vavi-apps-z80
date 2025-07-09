@@ -1053,7 +1053,7 @@ logger.log(Level.DEBUG, "already contains source");
         failIfNoExecutionContext();
         failIfNoInstructionFetchComplete();
 
-        short portNumber = useExtendedPortsSpace ? NumberUtils.createShort(portNumberLow, portNumberHigh) : portNumberLow;
+        short portNumber = useExtendedPortsSpace ? NumberUtils.createShort(portNumberLow, portNumberHigh) : (short) (portNumberLow & 0xff);
 
         return readFromMemoryOrPort(
                 portNumber,
@@ -1074,7 +1074,7 @@ logger.log(Level.DEBUG, "already contains source");
         failIfNoExecutionContext();
         failIfNoInstructionFetchComplete();
 
-        short portNumber = useExtendedPortsSpace ? NumberUtils.createShort(portNumberLow, portNumberHigh) : portNumberLow;
+        short portNumber = useExtendedPortsSpace ? NumberUtils.createShort(portNumberLow, portNumberHigh) : (short) (portNumberLow & 0xff);
 
         writeToMemoryOrPort(
                 portNumber,
