@@ -94,7 +94,7 @@ See [the configuration documentation](docs/Configuration.md#the-extended-ports-s
 * https://github.com/jsanchezv/Z80Core
 * https://github.com/codesqueak/Z80Processor
 
-### Current Score (#0052fce)
+### Current Score (#c7a4c4f)
 
  https://gist.github.com/umjammer/ea319aaa7b1ecf10a19b3ade2fd7187b
 
